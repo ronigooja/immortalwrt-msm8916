@@ -171,7 +171,7 @@ jobs:
     - name: Remove conflicting packages from smpackage
       run: |
         # 删除 small-package 中与系统冲突的包，避免编译报错（官方推荐操作）
-        rm -rf openwrt/feeds/smpackage/{base-files,dnsmasq,firewall*,fullconenat,libnftnl,nftables,ppp,opkg,ucl,upx,vsftpd*,miniupnpd-iptables,wireless-regdb,tailscale}
+        rm -rf openwrt/feeds/smpackage/{base-files,dnsmasq,firewall*,fullconenat,libnftnl,nftables,ppp,opkg,ucl,upx,vsftpd*,miniupnpd-iptables,wireless-regdb}
     - name: Install feeds
       run: cd openwrt && ./scripts/feeds install -a -f
 
