@@ -1,0 +1,84 @@
+#!/bin/sh
+
+LOGGER_TAG="usb-role-autodetect"
+DEVICE_WAIT="${USB_DEVICE_WAIT:-12}"
+
+log() {
+	logger -t "$LOGGER_TAG" "$*"
+}
+
+find_role_node() {
+	local node
+
+	for node in \
+		/sys/class/usb_role/*/role \
+		/sys/kernel/debug/ci_hdrc.*/role \
+		/sys/kernel/debug/*ci_hdrc*/role
+	do
+		[ -e "$node" ] || continue
+		[ -w "$node" ] || continue
+		echo "$node"
+		return 0
+	done
+
+	return 1
+}
+
+set_role() {
+	local role="$1"
+
+	{ echo "$role" > "$ROLE_NODE"; } 2>/dev/null || {
+		log "failed to switch USB role to $role via $ROLE_NODE"
+		return 1
+	}
+
+	log "switched USB role to $role via $ROLE_NODE"
+	return 0
+}
+
+device_connected() {
+	local state carrier
+
+	for state in /sys/class/udc/*/state; do
+		[ -r "$state" ] || continue
+		case "$(cat "$state" 2>/dev/null)" in
+			configured|connected)
+				return 0
+				;;
+		esac
+	done
+
+	for carrier in /sys/class/net/usb*/carrier; do
+		[ -r "$carrier" ] || continue
+		[ "$(cat "$carrier" 2>/dev/null)" = "1" ] && return 0
+	done
+
+	return 1
+}
+
+wait_for_device() {
+	local i=0
+
+	while [ "$i" -lt "$DEVICE_WAIT" ]; do
+		device_connected && return 0
+		sleep 1
+		i=$((i + 1))
+	done
+
+	return 1
+}
+
+ROLE_NODE="$(find_role_node)" || {
+	log "no writable USB role node found"
+	exit 0
+}
+
+set_role device || exit 0
+
+if wait_for_device; then
+	log "USB device mode is active, keeping connection to computer"
+	exit 0
+fi
+
+log "no computer detected after ${DEVICE_WAIT}s, switching to USB host for RJ45"
+set_role host

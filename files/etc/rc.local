@@ -5,4 +5,7 @@
 # cd /root/picoclaw && ./picoclaw-launcher -public > /root/picoclaw/picoclaw.log 2>&1 &
 # SimAdmin 这个是管理sim手机卡的程序，开源地址：https://github.com/3899/SimAdmin
 # cd /root/simadmin && ./simadmin > /root/simadmin/simadmin.log 2>&1 &
+
+# 开机先尝试 USB 连接电脑，未检测到电脑时切换到 host 供 USB-RJ45 使用
+[ -x /usr/sbin/usb-role-autodetect ] && /usr/sbin/usb-role-autodetect &
 exit 0
