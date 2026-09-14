@@ -1,0 +1,20 @@
+#!/bin/sh
+
+uci -q batch <<'EOF'
+set wireless.@wifi-iface[0].mode='ap'
+set wireless.@wifi-iface[0].ssid='Unknow'
+set wireless.@wifi-iface[0].encryption='psk2'
+set wireless.@wifi-iface[0].key='88888888'
+set wireless.@wifi-iface[0].hidden='1'
+set wireless.@wifi-iface[0].disabled='0'
+commit wireless
+EOF
+
+wifi reload 2>/dev/null || true
+
+[ -x /etc/init.d/wifi-autooff ] && {
+	/etc/init.d/wifi-autooff enable
+	/etc/init.d/wifi-autooff start
+}
+
+exit 0
