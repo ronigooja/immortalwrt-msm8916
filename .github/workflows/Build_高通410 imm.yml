@@ -268,10 +268,21 @@ jobs:
       id: config
       run: |
        cd openwrt
-       ./scripts/config -e DEVEL
-       ./scripts/config -e CCACHE
-       ./scripts/config --set-str CCACHE_DIR /build/cache
-       ./scripts/config -e PACKAGE_ethtool
+       set_config() {
+         key="$1"
+         value="$2"
+         if grep -q "^# ${key} is not set" .config; then
+           sed -i "s/^# ${key} is not set$/${key}=${value}/" .config
+         elif grep -q "^${key}=" .config; then
+           sed -i "s|^${key}=.*$|${key}=${value}|" .config
+         else
+           echo "${key}=${value}" >> .config
+         fi
+       }
+       set_config CONFIG_DEVEL y
+       set_config CONFIG_CCACHE y
+       set_config CONFIG_CCACHE_DIR '"/build/cache"'
+       set_config CONFIG_PACKAGE_ethtool y
        make defconfig
        
     - name: Download package
@@ -285,8 +296,7 @@ jobs:
     - name: 查看 openwrt 目录
       run: |
         ls -la openwrt/
-        ls -l .config
-        ls -la openwrt/.config
+        ls -l openwrt/.config
 
  
     - name: 自动上传最新源码生成.config编译配置
@@ -333,7 +343,7 @@ jobs:
 
     - name: Organize files
       id: organize
-      if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+      if: env.UPLOAD_FIRMWARE == 'true' && steps.compile.outputs.status == 'success' && !cancelled()
       run: |
         cd openwrt/bin/targets/*/*
         rm -rf packages
