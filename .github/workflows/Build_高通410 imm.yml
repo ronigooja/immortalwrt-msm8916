@@ -247,6 +247,14 @@ jobs:
        cd openwrt
        make defconfig
        
+    - name: Enable Tailscale Exit Node routing
+      run: |
+       cd openwrt
+       echo "CONFIG_IP_ADVANCED_ROUTER=y" >> .config
+       echo "CONFIG_IP_MULTIPLE_TABLES=y" >> .config
+       echo "CONFIG_IP_ROUTE_FWMARK=y" >> .config
+       make defconfig
+   
     - name: Download package
       id: package
       run: |
