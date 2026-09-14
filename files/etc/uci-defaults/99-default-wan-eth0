@@ -1,0 +1,18 @@
+#!/bin/sh
+
+uci del_list network.@device[0].ports='eth0' 2>/dev/null || true
+
+uci set network.wan='interface'
+uci set network.wan.device='eth0'
+uci set network.wan.proto='dhcp'
+uci set network.wan.hostname='Unknown'
+
+uci set network.wan6='interface'
+uci set network.wan6.device='eth0'
+uci set network.wan6.proto='dhcpv6'
+uci set network.wan6.reqaddress='try'
+uci set network.wan6.reqprefix='auto'
+
+uci commit network
+
+exit 0

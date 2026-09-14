@@ -271,6 +271,7 @@ jobs:
        ./scripts/config -e DEVEL
        ./scripts/config -e CCACHE
        ./scripts/config --set-str CCACHE_DIR /build/cache
+       ./scripts/config -e PACKAGE_ethtool
        make defconfig
        
     - name: Download package
