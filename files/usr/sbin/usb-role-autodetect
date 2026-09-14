@@ -2,9 +2,20 @@
 
 LOGGER_TAG="usb-role-autodetect"
 DEVICE_WAIT="${USB_DEVICE_WAIT:-12}"
+BOARD_LEDS="red:power green:wlan blue:wan"
 
 log() {
 	logger -t "$LOGGER_TAG" "$*"
+}
+
+set_board_leds() {
+	local brightness="$1"
+	local led
+
+	for led in $BOARD_LEDS; do
+		[ -w "/sys/class/leds/$led/brightness" ] || continue
+		echo "$brightness" > "/sys/class/leds/$led/brightness" 2>/dev/null || true
+	done
 }
 
 find_role_node() {
@@ -69,11 +80,19 @@ wait_for_device() {
 }
 
 ROLE_NODE="$(find_role_node)" || {
+	set_board_leds 0
 	log "no writable USB role node found"
 	exit 0
 }
 
-set_role device || exit 0
+set_board_leds 0
+
+if ! set_role device; then
+	set_board_leds 0
+	exit 0
+fi
+
+set_board_leds 1
 
 if wait_for_device; then
 	log "USB device mode is active, keeping connection to computer"
@@ -81,4 +100,5 @@ if wait_for_device; then
 fi
 
 log "no computer detected after ${DEVICE_WAIT}s, switching to USB host for RJ45"
+set_board_leds 0
 set_role host
