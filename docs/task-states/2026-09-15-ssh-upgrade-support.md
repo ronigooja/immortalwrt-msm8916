@@ -39,6 +39,7 @@ device-side upgrade path is proven.
 - `flashtool/rom/gpt_both0.bin.backup-upgrade-1280m-20260915`
 - `scripts/make_upgrade_gpt.py`
 - `scripts/ssh_upgrade_ufi003.sh`
+- `release-flash-package/ssh_upgrade.sh`
 - `docs/task-states/2026-09-15-ssh-upgrade-support.md`
 
 ## Decisions
@@ -75,6 +76,9 @@ device-side upgrade path is proven.
   best-effort if an LED sysfs node is missing.
 - Do not change the firmware workflow to emit SSH upgrade packages until manual
   device testing passes.
+- Include a release-bundle copy of the SSH upgrade helper as
+  `release-flash-package/ssh_upgrade.sh`, with defaults that find `boot.img`
+  and `system.img` in the current working directory.
 
 ## Verification
 
@@ -117,6 +121,10 @@ Run:
 - Retested timer-trigger LED indicators on UFI003:
   - Red flashing during partition writes works normally at the requested pace.
   - Blue flashing after successful write works normally before reboot.
+- Added `release-flash-package/ssh_upgrade.sh`, then ran:
+  - `bash -n release-flash-package/ssh_upgrade.sh`
+  - `shellcheck release-flash-package/ssh_upgrade.sh`
+  - `release-flash-package/ssh_upgrade.sh --help`
 
 Not run:
 
@@ -142,6 +150,9 @@ Result:
   rebooted, came back online, and the persistent log confirms the clean
   completion path reached `upgrade completed; rebooting`.
 - Timer-trigger LED indicators are verified on-device.
+- The release flash package now includes `ssh_upgrade.sh`. When run from the
+  extracted package directory, it can find `boot.img` and `system.img` without
+  explicit image arguments.
 
 ## Risks
 
@@ -166,6 +177,6 @@ Result:
 
 ## Next Step
 
-Update `.github/workflows/build-immortalwrt-msm8916.yml` to emit an SSH upgrade
-package and verify the generated package contains `boot.img` plus the compressed
-raw rootfs image expected by the SSH upgrade script.
+Build one release package and verify the archive includes `ssh_upgrade.sh`,
+`boot.img`, and `system.img`; then run the bundled helper from the extracted
+package directory on UFI003.
