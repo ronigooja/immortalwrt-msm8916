@@ -189,6 +189,8 @@ jobs:
       working-directory: /mnt
       run: |
         df -hT $PWD
+        sudo rm -rf /mnt/openwrt
+        rm -f "$GITHUB_WORKSPACE/openwrt"
         git clone $REPO_URL -b $REPO_BRANCH openwrt
         if [ -n "${{ steps.lock.outputs.locked_hash }}" ]; then
           cd openwrt && git checkout ${{ steps.lock.outputs.locked_hash }}
