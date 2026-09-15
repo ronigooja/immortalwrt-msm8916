@@ -14,7 +14,7 @@ change looks small.
 | `config/*.config` | Controls firmware image contents and kernel/userland selections. |
 | `diy-part2.sh` | Modifies target kernel config and DTS behavior after feeds install. |
 | `files/etc/uci-defaults/` | Changes first-boot network, SSH, wireless, and system defaults. |
-| `.github/workflows/Build_高通410 imm.yml` | Controls the firmware build and release pipeline. |
+| `.github/workflows/build-immortalwrt-msm8916.yml` | Controls the firmware build and release pipeline. |
 
 ## Flashing And Partition Rules
 

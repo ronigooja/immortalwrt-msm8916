@@ -11,25 +11,25 @@
 ## 编译固件步骤
 
 1. 先把本仓库Fork到你自己账号下
-![拉流仓库](img/0.png)
+![拉流仓库](assets/screenshots/0.png)
 
-2. 手动触发编译：你的仓库 → **Actions** → **Build_imm_高通410系列** → **Run workflow** → 选择设备型号 → 填写需要插件包 → Run workflow 开始编译
-![编译教程](img/1.png)
+2. 手动触发编译：你的仓库 → **Actions** → **Build ImmortalWrt MSM8916** → **Run workflow** → 选择设备型号 → 填写需要插件包 → Run workflow 开始编译
+![编译教程](assets/screenshots/1.png)
 
 3. 编译约⏱️ 1.5-2 小时，插件越多时间越长.
-![编译过程](img/2.png)
+![编译过程](assets/screenshots/2.png)
 
 4. 上面出现绿色对号，就代表编译成功了，你的仓库 → **releases** → 下载固件包
-![下载固件包](img/3.png)
+![下载固件包](assets/screenshots/3.png)
 
 5. 如果你原本系统是linux或openwrt系统，就可以按照下面步骤升级就行。
-![升级固件](img/4.png)
+![升级固件](assets/screenshots/4.png)
 
 如果你设备没刷过linux或者openwrt，还是原版安卓，就按下面教程刷入，注意必须备份分区。
-![安卓刷入openwrt固件](img/5.png)
+![安卓刷入openwrt固件](assets/screenshots/5.png)
 
 如果遇到手机卡插入设备不能用情况，多插拔几次，多次还是不识别手机卡，可以尝试以下步骤，你要是没备份安卓的分区，那就没办法了，在讨论区留言看看有没有好心人给你一份吧。
-![刷回固件](img/6.png)
+![刷回固件](assets/screenshots/6.png)
 
 ---
 
@@ -66,15 +66,14 @@
 |------|---------|
 | `config/` | 各设备型号的编译配置文件，文件名对应设备型号（如 `ufi003.config`） |
 | `files/` | 编译后覆盖到固件的系统配置文件；当前未内置自定义首页 |
-| `img/` | README 文档中使用的教程截图 |
+| `assets/screenshots/` | README 文档中使用的教程截图 |
 | `scripts/` | 编译过程中执行的辅助脚本 |
-| `工具与脚本/` | 刷机相关工具和辅助脚本合集，包括9008驱动，基带，完整的刷机脚本，等等 |
-| `刷机脚本/` | 编译成功后集成打包到一键刷机包里面 |
+| `legacy-tools/` | 旧版刷机工具、9008驱动、基带包和其他历史辅助资产 |
+| `release-flash-package/` | 编译成功后集成到一键刷机包里的文件 |
 | `diy-part1.sh` | 编译第一阶段自定义脚本，在拉取源码后执行（添加软件源、打补丁等） |
 | `diy-part2.sh` | 编译第二阶段自定义脚本，在生成默认配置后执行（修改配置、添加文件等） |
 | `upstream_history.txt` | 上游源码 hash 历史记录，如果编译不了可以使用历史 hash |
 | `upstream_lock.txt` | 手动维护的上游锁定 hash，默认编译使用它来避免上游变动导致失败 |
-| `极简的包名.txt` | 常用插件包名速查列表备份，没什么大用，备份参考用 |
 | `.config` | 默认编译配置文件，定义全局编译选项 |
 
 ---

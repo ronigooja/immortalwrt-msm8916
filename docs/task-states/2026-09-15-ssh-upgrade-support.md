@@ -28,7 +28,7 @@ device-side upgrade path is proven.
 - `docs/task-state-template.md`
 - `flashtool/main.go`
 - `flashtool/rom/gpt_both0.bin`
-- `.github/workflows/Build_高通410 imm.yml`
+- `.github/workflows/build-immortalwrt-msm8916.yml`
 - `config/ufi003.config`
 
 ## Files Changed
@@ -36,7 +36,7 @@ device-side upgrade path is proven.
 - `flashtool/rom/gpt_both0.bin`
 - `flashtool/rom/gpt_both0.bin.backup-before-upgrade-partition-20260915`
 - `flashtool/rom/gpt_both0.bin.backup-upgrade-1280m-20260915`
-- `工具与脚本/make_upgrade_gpt.py`
+- `scripts/make_upgrade_gpt.py`
 - `docs/task-states/2026-09-15-ssh-upgrade-support.md`
 
 ## Decisions
@@ -67,8 +67,8 @@ Run:
   - `system.img` sparse image to `rootfs.raw.img`.
   - `rootfs.raw.img` to `rootfs.raw.img.gz`.
 - Ran read-only filesystem verification on the converted raw rootfs image.
-- Ran `python3 工具与脚本/make_upgrade_gpt.py --dry-run`.
-- Ran `python3 工具与脚本/make_upgrade_gpt.py --output /tmp/gpt_both0-script-test.bin --no-backup`
+- Ran `python3 scripts/make_upgrade_gpt.py --dry-run`.
+- Ran `python3 scripts/make_upgrade_gpt.py --output /tmp/gpt_both0-script-test.bin --no-backup`
   and confirmed the output matched the current GPT with `cmp`.
 
 Not run:
@@ -105,5 +105,5 @@ Result:
 Flash the full package using the updated `flashtool/rom/gpt_both0.bin`, then on
 the device verify `upgrade` exists, format it, mount it, stage
 `boot.img`/`rootfs.raw.img.gz`, and test the SSH upgrade procedure. If that
-passes, update `.github/workflows/Build_高通410 imm.yml` to emit an SSH upgrade
+passes, update `.github/workflows/build-immortalwrt-msm8916.yml` to emit an SSH upgrade
 package.

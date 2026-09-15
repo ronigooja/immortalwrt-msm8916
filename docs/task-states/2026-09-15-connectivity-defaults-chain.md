@@ -22,7 +22,7 @@ computer is detected, and remains reachable through SSH during normal use.
 
 ## Files Read
 
-- `.github/workflows/Build_高通410 imm.yml`
+- `.github/workflows/build-immortalwrt-msm8916.yml`
 - `config/ufi003.config`
 - `diy-part2.sh`
 - `files/etc/rc.local`
@@ -36,7 +36,7 @@ computer is detected, and remains reachable through SSH during normal use.
 
 ## Files Changed
 
-- `.github/workflows/Build_高通410 imm.yml`
+- `.github/workflows/build-immortalwrt-msm8916.yml`
 - `config/ufi003.config`
 - `diy-part2.sh`
 - `files/etc/dropbear/authorized_keys`

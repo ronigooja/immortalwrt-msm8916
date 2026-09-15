@@ -23,12 +23,12 @@ documentation in English.
 
 ## Task Routing
 
-- GitHub Actions firmware build: `.github/workflows/Build_高通410 imm.yml`
+- GitHub Actions firmware build: `.github/workflows/build-immortalwrt-msm8916.yml`
 - Device build profiles: `config/*.config`
 - OpenWrt source customization: `diy-part1.sh`, `diy-part2.sh`
 - Firmware overlay files: `files/`
 - Flashing tool: `flashtool/`
-- User-facing documentation: `README.md`, `README_EN.md`, `img/`
+- User-facing documentation: `README.md`, `README_EN.md`, `assets/screenshots/`
 
 ## Hard Rules
 

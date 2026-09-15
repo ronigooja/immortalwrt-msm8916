@@ -9,14 +9,19 @@ based flashing tool.
 
 | Path | Role |
 | --- | --- |
-| `.github/workflows/Build_高通410 imm.yml` | Main cloud firmware build workflow. |
+| `.github/workflows/build-immortalwrt-msm8916.yml` | Main cloud firmware build workflow. |
 | `.github/workflows/Build_刷机工具.yml` | Builds and releases the Go flashing tool. |
 | `config/` | Device profile `.config` files. File names match workflow profile options. |
 | `files/` | OpenWrt overlay copied into the firmware image. |
 | `diy-part1.sh` | Runs before feeds update. Used for feed source changes. |
 | `diy-part2.sh` | Runs after feeds install. Used for config, kernel, DTS, and patch tweaks. |
 | `scripts/setup-self-hosted-runner.sh` | Bootstraps a Ubuntu self-hosted GitHub Actions runner on a VPS. |
+| `scripts/gen_config.py` | Generates a new device config from an existing profile. |
+| `scripts/make_upgrade_gpt.py` | Creates a modified GPT layout for upgrade-oriented flash packages. |
 | `flashtool/` | Go flashing tool and bundled low-level ROM assets. |
+| `legacy-tools/` | Archived helper packages, drivers, baseband bundles, and legacy tools. |
+| `release-flash-package/` | Files bundled into the one-click flash package after a successful build. |
+| `assets/screenshots/` | Tutorial screenshots used by the READMEs. |
 | `docs/` | AI-facing project documents and task state records. |
 | `README.md`, `README_EN.md` | User-facing build and flashing guide. |
 | `upstream_lock.txt` | Manually maintained upstream commit used by builds unless overridden. |
@@ -70,7 +75,7 @@ online and visible to the GitHub Actions API.
 
 Supported device profiles are defined in two places:
 
-- Workflow choices in `.github/workflows/Build_高通410 imm.yml`
+- Workflow choices in `.github/workflows/build-immortalwrt-msm8916.yml`
 - Matching config files in `config/*.config`
 
 When adding a profile, update both places and the user-facing README tables.

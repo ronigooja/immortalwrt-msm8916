@@ -104,7 +104,7 @@ When saved state is needed:
 
 Read:
 
-- `.github/workflows/Build_高通410 imm.yml`
+- `.github/workflows/build-immortalwrt-msm8916.yml`
 - Existing `config/*.config`
 - `README.md`
 - `README_EN.md`
@@ -127,7 +127,7 @@ Read:
 
 - `diy-part1.sh`
 - `diy-part2.sh`
-- `.github/workflows/Build_高通410 imm.yml`
+- `.github/workflows/build-immortalwrt-msm8916.yml`
 - README sections listing default packages and packages that should not be
   duplicated.
 
