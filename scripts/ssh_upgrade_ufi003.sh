@@ -248,7 +248,7 @@ info "Checking SSH connectivity and device tools..."
 remote_script "$FORMAT_UPGRADE" <<'REMOTE'
 set -eu
 format_upgrade=$1
-for tool in dd gzip sha256sum readlink mount mkdir rm sync reboot nohup wc tr sleep kill date awk cat; do
+for tool in dd gzip sha256sum readlink mount mkdir rm sync reboot wc tr sleep kill date awk cat sh; do
     command -v "$tool" >/dev/null 2>&1 || {
         echo "missing required device tool: $tool" >&2
         exit 1
@@ -461,6 +461,6 @@ copy_to_remote "$WRITER_FILE" "$REMOTE_WRITER"
 remote_sh "chmod 700 '$REMOTE_WRITER'"
 
 info "Starting remote writer. Follow progress later with: ssh $HOST 'tail -f $STAGE_DIR/upgrade.log'"
-remote_sh "nohup '$REMOTE_WRITER' '$STAGE_DIR' '$REBOOT_TIMEOUT' '$ROOTFS_RAW_SIZE' >/tmp/ufi003-ssh-upgrade.nohup 2>&1 < /dev/null &"
+remote_sh "sh '$REMOTE_WRITER' '$STAGE_DIR' '$REBOOT_TIMEOUT' '$ROOTFS_RAW_SIZE' >/tmp/ufi003-ssh-upgrade.launch.log 2>&1 < /dev/null &"
 
 info "Writer launched. SSH may drop while rootfs is being overwritten; wait for the device to reboot."

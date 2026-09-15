@@ -61,6 +61,9 @@ device-side upgrade path is proven.
   ext4 on first use when it cannot be mounted.
 - Host-side checksum generation supports GNU `sha256sum` and macOS
   `shasum -a 256`; device-side verification still uses OpenWrt `sha256sum -c`.
+- Device-side writer launch avoids `nohup` because minimal OpenWrt images may
+  not include it; the writer is started with `sh` in the background and
+  redirected stdio.
 - Do not change the firmware workflow to emit SSH upgrade packages until manual
   device testing passes.
 
