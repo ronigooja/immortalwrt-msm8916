@@ -182,6 +182,16 @@ require_host_tool() {
     command -v "$1" >/dev/null 2>&1 || die "host tool is missing: $1"
 }
 
+host_sha256() {
+    if command -v sha256sum >/dev/null 2>&1; then
+        sha256sum "$1" | awk '{ print $1 }'
+    elif command -v shasum >/dev/null 2>&1; then
+        shasum -a 256 "$1" | awk '{ print $1 }'
+    else
+        die "host tool is missing: sha256sum or shasum"
+    fi
+}
+
 is_android_sparse() {
     local magic
     magic=$(LC_ALL=C od -An -tx4 -N4 "$1" | tr -d '[:space:]')
@@ -218,7 +228,6 @@ prepare_rootfs() {
 
 prepare_rootfs
 
-require_host_tool sha256sum
 require_host_tool wc
 require_host_tool awk
 require_host_tool od
@@ -232,8 +241,8 @@ case "$ROOTFS_RAW_SIZE" in
     ''|*[!0-9]*) die "could not determine uncompressed rootfs size from $ROOTFS_GZ" ;;
 esac
 
-BOOT_SHA=$(sha256sum "$BOOT_IMG" | awk '{ print $1 }')
-ROOTFS_SHA=$(sha256sum "$ROOTFS_GZ" | awk '{ print $1 }')
+BOOT_SHA=$(host_sha256 "$BOOT_IMG")
+ROOTFS_SHA=$(host_sha256 "$ROOTFS_GZ")
 
 info "Checking SSH connectivity and device tools..."
 remote_script "$FORMAT_UPGRADE" <<'REMOTE'

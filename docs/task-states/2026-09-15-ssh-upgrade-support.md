@@ -59,6 +59,8 @@ device-side upgrade path is proven.
   partition sizes, then launches a detached device-side writer from `/tmp`.
 - The SSH upgrade script auto-mounts the `upgrade` partition and formats it as
   ext4 on first use when it cannot be mounted.
+- Host-side checksum generation supports GNU `sha256sum` and macOS
+  `shasum -a 256`; device-side verification still uses OpenWrt `sha256sum -c`.
 - Do not change the firmware workflow to emit SSH upgrade packages until manual
   device testing passes.
 
