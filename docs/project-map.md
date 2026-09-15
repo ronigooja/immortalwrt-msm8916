@@ -9,7 +9,7 @@ based flashing tool.
 
 | Path | Role |
 | --- | --- |
-| `.github/workflows/build-immortalwrt-msm8916.yml` | Main cloud firmware build workflow. |
+| `.github/workflows/build-immortalwrt-msm8916.yml` | Main firmware build workflow. |
 | `.github/workflows/build-flashtool.yml` | Builds and releases the Go flashing tool. |
 | `config/` | Device profile `.config` files. File names match workflow profile options. |
 | `files/` | OpenWrt overlay copied into the firmware image. |
