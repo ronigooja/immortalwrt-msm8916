@@ -171,16 +171,21 @@ Read:
 - Target workflow under `.github/workflows/`
 - `docs/project-map.md`
 - `docs/risk-boundaries.md`
+- `scripts/setup-self-hosted-runner.sh` when self-hosted runner behavior or
+  setup changes
 
 Common edits:
 
 - Build inputs, cache keys, package install steps, release naming, or upstream
   hash selection.
+- Runner setup helper defaults, labels, service installation, or token handling.
 
 Verify:
 
 - Required permissions are still present.
 - Cache keys include files that affect build output.
+- For self-hosted runner work, confirm the runner appears online in the GitHub
+  Actions API and the `build` job uses the expected runner name.
 - `upstream_lock.txt` and `upstream_history.txt` are only changed by an explicit
   maintenance task.
 

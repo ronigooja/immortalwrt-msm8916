@@ -15,6 +15,7 @@ based flashing tool.
 | `files/` | OpenWrt overlay copied into the firmware image. |
 | `diy-part1.sh` | Runs before feeds update. Used for feed source changes. |
 | `diy-part2.sh` | Runs after feeds install. Used for config, kernel, DTS, and patch tweaks. |
+| `scripts/setup-self-hosted-runner.sh` | Bootstraps a Ubuntu self-hosted GitHub Actions runner on a VPS. |
 | `flashtool/` | Go flashing tool and bundled low-level ROM assets. |
 | `docs/` | AI-facing project documents and task state records. |
 | `README.md`, `README_EN.md` | User-facing build and flashing guide. |
@@ -41,6 +42,29 @@ The main firmware workflow:
 11. `diy-part2.sh` runs after feeds install.
 12. Extra packages and system parameters from workflow input are applied.
 13. OpenWrt build commands produce firmware artifacts and releases.
+
+## Self-Hosted Runner Setup
+
+Use `scripts/setup-self-hosted-runner.sh` after reinstalling a Ubuntu 22.04 VPS
+that will run the main firmware workflow. Run it from this repository with the
+current runner IP or hostname:
+
+```bash
+./scripts/setup-self-hosted-runner.sh <runner-ip-or-hostname>
+```
+
+The script mints a fresh GitHub runner registration token from
+`RUNNER_ADMIN_TOKEN`, `GH_TOKEN`, `GITHUB_TOKEN`, or the local Git credential
+store. It SSHes to `root@IP`, creates the `github` user, installs the runner
+under `/home/github/actions-runner`, adds the configured SSH public key for the
+`github` user, enables passwordless sudo for build dependencies, and starts the
+runner as a systemd service.
+
+Defaults can be overridden with environment variables such as `REPO`,
+`RUNNER_NAME`, `RUNNER_LABELS`, `RUNNER_USER`, `SSH_PUBLIC_KEY`, and
+`RUNNER_VERSION`. The workflow selector still starts on GitHub-hosted
+`ubuntu-latest`; the `build` job should move to `self-hosted` when the runner is
+online and visible to the GitHub Actions API.
 
 ## Device Profiles
 
