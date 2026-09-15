@@ -13,6 +13,15 @@
 # 修改默认主题为 argon（路径不存在时跳过，不中断编译）
 sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile 2>/dev/null || true
 
+# 默认使用 SSH 公钥登录，移除上游无 root 密码时的交互式登录警告。
+passwordless_root_warning="package/base-files/files/etc/profile.d/00-passwordless-root.sh"
+if [ -f "$passwordless_root_warning" ]; then
+  cat > "$passwordless_root_warning" <<'EOF'
+#!/bin/sh
+return 0 2>/dev/null || true
+EOF
+fi
+
 # 启用 Tailscale Exit Node 所需的 IPv4 策略路由内核选项
 for cfg in target/linux/msm89xx/config-*; do
   [ -f "$cfg" ] || continue
@@ -30,6 +39,34 @@ done
 # 启用 UFI/OpenStick 的标准 USB role-switch 节点，供 /sys/class/usb_role/*/role 控制 host/device。
 ufi_dtsi="target/linux/msm89xx/dts/msm8916-ufi.dtsi"
 if [ -f "$ufi_dtsi" ]; then
+  set_led_default_off() {
+    local led_node="$1"
+    local tmp="${ufi_dtsi}.tmp"
+
+    awk -v led_node="$led_node" '
+      $0 ~ "^[[:space:]]*" led_node ":[[:space:]]" {
+        in_led = 1
+        saw_default = 0
+      }
+      in_led && /^[[:space:]]*default-state[[:space:]]*=/ {
+        print "\t\t\tdefault-state = \"off\";"
+        saw_default = 1
+        next
+      }
+      in_led && /^[[:space:]]*};/ {
+        if (!saw_default) {
+          print "\t\t\tdefault-state = \"off\";"
+        }
+        in_led = 0
+      }
+      { print }
+    ' "$ufi_dtsi" > "$tmp" && mv "$tmp" "$ufi_dtsi"
+  }
+
+  for led_node in led_r led_g led_b; do
+    set_led_default_off "$led_node"
+  done
+
   insert_usb_property() {
     local property="$1"
     local tmp="${ufi_dtsi}.tmp"

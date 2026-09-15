@@ -10,14 +10,6 @@ set wireless.@wifi-iface[0].disabled='0'
 commit wireless
 EOF
 
-if [ -f /etc/banner ]; then
-	sed -i \
-		-e '/There is no root password defined on this device!/d' \
-		-e '/Use the "passwd" command to set up a new password/d' \
-		-e '/in order to prevent unauthorized SSH logins/d' \
-		/etc/banner
-fi
-
 wifi reload 2>/dev/null || true
 
 [ -x /etc/init.d/wifi-autooff ] && {

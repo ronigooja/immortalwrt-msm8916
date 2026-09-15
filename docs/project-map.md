@@ -99,8 +99,10 @@ Important overlay areas:
 adds third-party feeds such as `kenzok8/small-package` and LinkEase iStore.
 
 `diy-part2.sh` is for post-feed customization. It currently changes the default
-LuCI theme to Argon, enables policy routing options used by Tailscale exit-node
-style setups, and ensures USB role-switch/extcon support for msm89xx targets.
+LuCI theme to Argon, removes the upstream passwordless-root SSH login warning
+because this image uses key-only SSH defaults, enables policy routing options
+used by Tailscale exit-node style setups, and patches msm89xx UFI/OpenStick DTS
+defaults for USB role-switch/extcon support and board LEDs defaulting off.
 
 ## Flashing Tool
 

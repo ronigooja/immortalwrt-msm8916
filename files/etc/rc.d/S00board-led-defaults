@@ -1,0 +1,14 @@
+#!/bin/sh
+
+BOARD_LEDS="red:power green:wlan blue:wan"
+
+for led in $BOARD_LEDS; do
+	[ -w "/sys/class/leds/$led/trigger" ] && {
+		echo none > "/sys/class/leds/$led/trigger" 2>/dev/null || true
+	}
+	[ -w "/sys/class/leds/$led/brightness" ] && {
+		echo 0 > "/sys/class/leds/$led/brightness" 2>/dev/null || true
+	}
+done
+
+exit 0
