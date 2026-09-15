@@ -114,11 +114,13 @@ Run:
   - `bash -n scripts/ssh_upgrade_ufi003.sh`
   - `shellcheck scripts/ssh_upgrade_ufi003.sh`
   - `scripts/ssh_upgrade_ufi003.sh --help`
+- Retested timer-trigger LED indicators on UFI003:
+  - Red flashing during partition writes works normally at the requested pace.
+  - Blue flashing after successful write works normally before reboot.
 
 Not run:
 
 - Workflow changes for SSH upgrade package output.
-- On-device verification of the new LED indicator behavior.
 
 Result:
 
@@ -139,8 +141,7 @@ Result:
 - The BusyBox-backed reboot fix is verified on-device: the device automatically
   rebooted, came back online, and the persistent log confirms the clean
   completion path reached `upgrade completed; rebooting`.
-- Repository now has a candidate LED indicator update for SSH upgrade, but it
-  still needs on-device visual verification.
+- Timer-trigger LED indicators are verified on-device.
 
 ## Risks
 
@@ -165,9 +166,6 @@ Result:
 
 ## Next Step
 
-Retest `scripts/ssh_upgrade_ufi003.sh` on UFI003 and visually confirm red
-0.2-second flashing during partition writes plus blue 0.5-second flashing for
-10 seconds before reboot. Then
-update `.github/workflows/build-immortalwrt-msm8916.yml` to emit an SSH upgrade
+Update `.github/workflows/build-immortalwrt-msm8916.yml` to emit an SSH upgrade
 package and verify the generated package contains `boot.img` plus the compressed
 raw rootfs image expected by the SSH upgrade script.
