@@ -9,14 +9,4 @@
 # 开机先尝试 USB 连接电脑，未检测到电脑时切换到 host 供 USB-RJ45 使用
 [ -x /usr/sbin/usb-role-autodetect ] && /usr/sbin/usb-role-autodetect &
 
-# 优化 eth0 转发性能，适配 USB-RJ45/WAN 口场景
-if command -v ethtool >/dev/null 2>&1; then
-	for i in $(seq 1 20); do
-		[ -e /sys/class/net/eth0 ] && break
-		sleep 1
-	done
-	sleep 2
-	ethtool -K eth0 rx-udp-gro-forwarding on rx-gro-list off 2>/dev/null || true
-fi
-
 exit 0
