@@ -79,6 +79,25 @@ wait_for_device() {
 	return 1
 }
 
+bring_up_usb_wan() {
+	local i=0
+
+	while [ "$i" -lt 20 ]; do
+		[ -e /sys/class/net/eth0 ] && break
+		sleep 1
+		i=$((i + 1))
+	done
+
+	[ -e /sys/class/net/eth0 ] || {
+		log "eth0 not found after USB host switch, skip WAN bring-up"
+		return 0
+	}
+
+	log "eth0 found after USB host switch, bringing up WAN"
+	ifup wan 2>/dev/null || true
+	ifup wan6 2>/dev/null || true
+}
+
 ROLE_NODE="$(find_role_node)" || {
 	set_board_leds 0
 	log "no writable USB role node found"
@@ -101,4 +120,4 @@ fi
 
 log "no computer detected after ${DEVICE_WAIT}s, switching to USB host for RJ45"
 set_board_leds 0
-set_role host
+set_role host && bring_up_usb_wan
