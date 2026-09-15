@@ -17,7 +17,9 @@ documentation in English.
    firmware overlay files, workflows, documentation, or the flashing tool.
 3. Read `docs/risk-boundaries.md` before touching firmware, flashing, partition,
    baseband, kernel, or GitHub Actions behavior.
-4. For Feature, Optimization, Refactoring, Troubleshooting, or long-running
+4. Read `docs/workflow-checklist.md` before executing any GitHub Actions
+   workflow.
+5. For Feature, Optimization, Refactoring, Troubleshooting, or long-running
    work, follow the protocols in `docs/task-playbooks.md`. When cross-session
    state is needed, use `docs/task-state-template.md`.
 
@@ -41,6 +43,9 @@ documentation in English.
 - This is a private repository. For GitHub operations, use the GitHub API with
   locally stored credentials such as the Git credential store. Do not try `gh`
   or other GitHub helper CLIs.
+- When a file or directory path is renamed, moved, removed, or replaced, and
+  that change may affect workflows, scripts, overlays, packaging, or flashing,
+  write an active record in `docs/workflow-checklist.md`.
 - Before modifying any non-Markdown file, tell the user why the change is
   needed and which file or area will be changed, then wait for explicit
   permission to continue.

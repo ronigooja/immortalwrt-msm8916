@@ -171,6 +171,7 @@ Read:
 - Target workflow under `.github/workflows/`
 - `docs/project-map.md`
 - `docs/risk-boundaries.md`
+- `docs/workflow-checklist.md` before executing or dispatching any workflow
 - `scripts/setup-self-hosted-runner.sh` when self-hosted runner behavior or
   setup changes
 
@@ -192,6 +193,8 @@ Self-hosted runner build requests:
 
 Verify:
 
+- Active records in `docs/workflow-checklist.md` have been checked against the
+  workflow and helper scripts being executed.
 - Required permissions are still present.
 - Cache keys include files that affect build output.
 - For self-hosted runner work, confirm the runner appears online in the GitHub
