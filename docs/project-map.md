@@ -51,12 +51,18 @@ The main firmware workflow:
 ## Self-Hosted Runner Setup
 
 Use `scripts/setup-self-hosted-runner.sh` after reinstalling a Ubuntu 22.04 VPS
-that will run the main firmware workflow. Run it from this repository with the
-current runner IP or hostname:
+that will run the main firmware workflow. If the user says to trigger the
+firmware build workflow and provides a self-hosted runner IP or host, run this
+setup script for that host first:
 
 ```bash
 ./scripts/setup-self-hosted-runner.sh <runner-ip-or-hostname>
 ```
+
+Do not trigger GitHub Actions directly before this setup script finishes and
+the runner is visible online. The workflow selector starts on GitHub-hosted
+`ubuntu-latest`; after the runner is online, the `build` job should move to
+`self-hosted`.
 
 The script mints a fresh GitHub runner registration token from
 `RUNNER_ADMIN_TOKEN`, `GH_TOKEN`, `GITHUB_TOKEN`, or the local Git credential
@@ -67,9 +73,7 @@ runner as a systemd service.
 
 Defaults can be overridden with environment variables such as `REPO`,
 `RUNNER_NAME`, `RUNNER_LABELS`, `RUNNER_USER`, `SSH_PUBLIC_KEY`, and
-`RUNNER_VERSION`. The workflow selector still starts on GitHub-hosted
-`ubuntu-latest`; the `build` job should move to `self-hosted` when the runner is
-online and visible to the GitHub Actions API.
+`RUNNER_VERSION`.
 
 ## Device Profiles
 

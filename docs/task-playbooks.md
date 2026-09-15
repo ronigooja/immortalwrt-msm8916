@@ -180,6 +180,16 @@ Common edits:
   hash selection.
 - Runner setup helper defaults, labels, service installation, or token handling.
 
+Self-hosted runner build requests:
+
+- If the user says "trigger the build workflow" and provides a self-hosted
+  runner IP or host, treat that as a request to prepare that runner first:
+  `./scripts/setup-self-hosted-runner.sh <runner-ip-or-hostname>`.
+- Do not call GitHub workflow dispatch before the setup script completes and the
+  runner is visible online.
+- After setup, the existing workflow selector decides whether the `build` job
+  uses `self-hosted`.
+
 Verify:
 
 - Required permissions are still present.
