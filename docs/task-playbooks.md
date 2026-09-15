@@ -157,7 +157,6 @@ Common edits:
 - First-boot defaults: `files/etc/uci-defaults/`
 - Runtime scripts: `files/usr/sbin/`
 - Init behavior: `files/etc/init.d/`
-- Web homepage: `files/www/`
 
 Verify:
 

@@ -68,7 +68,7 @@ Tired of finding a decent firmware? Software repos won't install, the version is
 | Path                   | Description                                                                                   |
 |------------------------|-----------------------------------------------------------------------------------------------|
 | `config/`              | Build config files for each device model (e.g. `ufi003.config`)                               |
-| `files/`               | Files overlaid into the firmware image — system configs. [See this repo for custom homepage guide](https://github.com/x7780/suishen-wifi) |
+| `files/`               | System configuration files overlaid into the firmware image; no custom homepage is currently bundled |
 | `img/`                 | Tutorial screenshots used in the README                                                       |
 | `scripts/`             | Helper scripts executed during the build                                                      |
 | `工具与脚本/`          | Flashing tools and helper scripts collection: 9008 driver, baseband, full flashing scripts, etc. |

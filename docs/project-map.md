@@ -62,7 +62,6 @@ Important overlay areas:
 - `files/etc/init.d/`: init scripts installed into the image.
 - `files/usr/sbin/`: runtime helper commands.
 - `files/etc/cardswitch/`: SIM/card switching helper logic.
-- `files/www/`: device web homepage assets.
 - `files/etc/dropbear/`: SSH related defaults.
 
 ## DIY Scripts
