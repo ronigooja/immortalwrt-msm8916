@@ -4,7 +4,6 @@
 name: 🚀 Build_imm_高通410系列
 
 on:
-  repository_dispatch:
   workflow_dispatch:
     inputs:
       ssh:
@@ -44,9 +43,9 @@ on:
         default: ''
         type: string
       extra_packages:
-        description: ' ↓ 输入额外包名（逗号或空格分隔，留空则不添加任何额外包）↓ '
+        description: ' ↓ 输入额外包名；可用 __ip__ 和 __hostname__ 设置管理 IP、主机名 ↓ '
         required: false
-        default: ''
+        default: 'tailscale htop nano tcpdump-mini openssh-sftp-server odhcp6c odhcpd-ipv6only git git-http __ip__192.168.77.1 __hostname__Unknown'
         type: string
 
 env:

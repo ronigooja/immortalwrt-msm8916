@@ -9,7 +9,7 @@ For hardware, partition, kernel, or flashing work, also read
 ### Feature
 
 Use for new capabilities such as a new device profile, package option, workflow
-input, web UI behavior, firmware default, or helper script.
+input, firmware default, documentation, or helper script.
 
 Default flow:
 
@@ -69,7 +69,7 @@ Report:
 ### Troubleshooting
 
 Use for build failures, package conflicts, flashing failures, boot problems,
-network issues, web UI bugs, or unclear regressions.
+network issues, documentation issues, or unclear regressions.
 
 Default flow:
 
@@ -175,15 +175,15 @@ Read:
 
 Common edits:
 
-- Build inputs, cache keys, package install steps, release naming, Pages publish
-  behavior, or upstream hash verification.
+- Build inputs, cache keys, package install steps, release naming, or upstream
+  hash selection.
 
 Verify:
 
 - Required permissions are still present.
 - Cache keys include files that affect build output.
-- `upstream_lock.txt` and `upstream_history.txt` are only changed by the hash
-  verification workflow or an explicit maintenance task.
+- `upstream_lock.txt` and `upstream_history.txt` are only changed by an explicit
+  maintenance task.
 
 ## Change The Flashing Tool
 
@@ -208,24 +208,3 @@ Verify:
   possible.
 - `go build ./...` from `flashtool/` for local compile validation.
 - Partition and baseband behavior is explicitly called out in the final report.
-
-## Change The Web Site
-
-Read:
-
-- `docs/index.html`
-- `docs/style.css`
-- `docs/app.js`
-- `.github/workflows/pages.yml`
-
-Common edits:
-
-- UI and configuration behavior in `docs/app.js`.
-- Layout and visual styling in `docs/style.css`.
-- Static structure in `docs/index.html`.
-
-Verify:
-
-- Open the static page locally when possible.
-- Check that no AI-facing Markdown file breaks the Pages site.
-- Pages workflow still uploads the whole `docs/` directory.

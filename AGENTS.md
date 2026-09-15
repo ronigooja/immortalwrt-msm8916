@@ -10,7 +10,7 @@ documents needed for the current task.
 
 1. Read `docs/project-map.md` to understand the repository layout and build flow.
 2. Read `docs/task-playbooks.md` before changing build scripts, device configs,
-   firmware overlay files, workflows, web docs, or the flashing tool.
+   firmware overlay files, workflows, documentation, or the flashing tool.
 3. Read `docs/risk-boundaries.md` before touching firmware, flashing, partition,
    baseband, kernel, or GitHub Actions behavior.
 4. For Feature, Optimization, Refactoring, Troubleshooting, or long-running
@@ -20,8 +20,6 @@ documents needed for the current task.
 ## Task Routing
 
 - GitHub Actions firmware build: `.github/workflows/Build_高通410 imm.yml`
-- Scheduled upstream hash verification: `.github/workflows/定时更新hash.yml`
-- GitHub Pages web UI: `.github/workflows/pages.yml`, `docs/`
 - Device build profiles: `config/*.config`
 - OpenWrt source customization: `diy-part1.sh`, `diy-part2.sh`
 - Firmware overlay files: `files/`

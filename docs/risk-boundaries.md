@@ -15,7 +15,6 @@ change looks small.
 | `diy-part2.sh` | Modifies target kernel config and DTS behavior after feeds install. |
 | `files/etc/uci-defaults/` | Changes first-boot network, SSH, wireless, and system defaults. |
 | `.github/workflows/Build_高通410 imm.yml` | Controls the firmware build and release pipeline. |
-| `.github/workflows/定时更新hash.yml` | Updates the known-good upstream hash used by default builds. |
 
 ## Flashing And Partition Rules
 
@@ -51,7 +50,6 @@ change looks small.
 - Do not remove cache restore keys without considering build time impact.
 - Do not update `upstream_lock.txt` manually unless the task is explicitly about
   upstream pinning.
-- Do not make the scheduled hash workflow push unrelated files.
 - Workflow input names are part of the user-facing build interface; changing
   them requires README updates.
 

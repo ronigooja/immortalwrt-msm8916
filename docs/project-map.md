@@ -2,7 +2,7 @@
 
 This project is a GitHub Actions based ImmortalWrt firmware builder for Qualcomm
 MSM8916 / Snapdragon 410 portable Wi-Fi devices. It also includes firmware
-overlay files, device build configs, a small web configuration site, and a Go
+overlay files, device build configs, AI-facing maintenance documents, and a Go
 based flashing tool.
 
 ## Main Areas
@@ -10,18 +10,16 @@ based flashing tool.
 | Path | Role |
 | --- | --- |
 | `.github/workflows/Build_高通410 imm.yml` | Main cloud firmware build workflow. |
-| `.github/workflows/定时更新hash.yml` | Scheduled upstream verification and `upstream_lock.txt` updater. |
 | `.github/workflows/Build_刷机工具.yml` | Builds and releases the Go flashing tool. |
-| `.github/workflows/pages.yml` | Publishes the `docs/` web site to GitHub Pages. |
 | `config/` | Device profile `.config` files. File names match workflow profile options. |
 | `files/` | OpenWrt overlay copied into the firmware image. |
 | `diy-part1.sh` | Runs before feeds update. Used for feed source changes. |
 | `diy-part2.sh` | Runs after feeds install. Used for config, kernel, DTS, and patch tweaks. |
 | `flashtool/` | Go flashing tool and bundled low-level ROM assets. |
-| `docs/` | GitHub Pages web UI plus AI-facing project documents. |
+| `docs/` | AI-facing project documents and task state records. |
 | `README.md`, `README_EN.md` | User-facing build and flashing guide. |
-| `upstream_lock.txt` | Known-good upstream commit used by builds unless overridden. |
-| `upstream_history.txt` | History of verified upstream commits. |
+| `upstream_lock.txt` | Manually maintained upstream commit used by builds unless overridden. |
+| `upstream_history.txt` | Historical upstream commits kept for fallback reference. |
 
 ## Firmware Build Flow
 

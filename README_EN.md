@@ -75,8 +75,8 @@ Tired of finding a decent firmware? Software repos won't install, the version is
 | `刷机脚本/`            | Integrated into the one-click flash package after a successful build                          |
 | `diy-part1.sh`         | Phase 1 custom script — runs after fetching source (add repos, apply patches, etc.)           |
 | `diy-part2.sh`         | Phase 2 custom script — runs after default config is generated (tweak config, add files, etc.)|
-| `upstream_history.txt` | Historical upstream hash log — use a past hash if the latest won't compile                    |
-| `upstream_lock.txt`    | Periodically updated lock of a known-good upstream hash to avoid upstream breakage             |
+| `upstream_history.txt` | Historical upstream hash log — use a past hash if the selected hash won't compile             |
+| `upstream_lock.txt`    | Manually maintained upstream lock hash used by default builds to avoid upstream breakage       |
 | `极简的包名.txt`       | Quick-reference list of common plugin package names (backup, not essential)                   |
 | `.config`              | Default build config, defines global build options                                            |
 
