@@ -30,6 +30,7 @@ device-side upgrade path is proven.
 - `flashtool/rom/gpt_both0.bin`
 - `.github/workflows/build-immortalwrt-msm8916.yml`
 - `config/ufi003.config`
+- `scripts/ssh_upgrade_ufi003.sh`
 
 ## Files Changed
 
@@ -64,6 +65,9 @@ device-side upgrade path is proven.
 - Device-side writer launch avoids `nohup` because minimal OpenWrt images may
   not include it; the writer is started with `sh` in the background and
   redirected stdio.
+- Device-side writer now copies BusyBox into `/tmp` before writing `rootfs` and
+  uses that copy for post-write `sync`, watchdog sleep, process cleanup, and
+  forced reboot. If BusyBox reboot fails, it falls back to `/proc/sysrq-trigger`.
 - Do not change the firmware workflow to emit SSH upgrade packages until manual
   device testing passes.
 
@@ -84,14 +88,21 @@ Run:
 - Ran `bash -n scripts/ssh_upgrade_ufi003.sh`.
 - Ran `shellcheck scripts/ssh_upgrade_ufi003.sh`.
 - Ran `scripts/ssh_upgrade_ufi003.sh --help`.
+- Ran end-to-end SSH upgrade on a UFI003 device from macOS host:
+  - `scripts/ssh_upgrade_ufi003.sh --host root@192.168.77.1 --system .../system.img --boot .../boot.img`
+  - The script converted sparse `system.img`, compressed the raw rootfs,
+    auto-formatted the first-use `upgrade` partition as ext4, staged images,
+    verified hashes, installed the remote writer, and launched it.
+- Inspected `/mnt/upgrade/ssh-upgrade/upgrade.log` after manual power-cycle.
+- Updated the SSH upgrade writer reboot path, then ran:
+  - `bash -n scripts/ssh_upgrade_ufi003.sh`
+  - `shellcheck scripts/ssh_upgrade_ufi003.sh`
+  - `scripts/ssh_upgrade_ufi003.sh --help`
 
 Not run:
 
-- End-to-end `scripts/ssh_upgrade_ufi003.sh` execution on the UFI003 device.
-- First boot verification that `/dev/disk/by-partlabel/upgrade` appears.
-- Formatting and mounting the `upgrade` partition on-device.
-- End-to-end SSH upgrade from staged `boot.img` and `rootfs.raw.img.gz`.
 - Workflow changes for SSH upgrade package output.
+- Retest of an automatic reboot fix.
 
 Result:
 
@@ -99,7 +110,16 @@ Result:
 - The helper script can reproduce the current GPT layout and accepts partition
   size parameters.
 - Repository now contains a host-side SSH upgrade test script for UFI003.
-- Hardware SSH upgrade remains unverified.
+- Hardware SSH upgrade succeeded after manual power-cycle: the device did not
+  automatically reboot after the writer was launched, but after roughly 20
+  minutes the user power-cycled it and the upgraded system booted.
+- The first-use `upgrade` partition formatting path is verified on-device.
+- The automatic forced reboot path is defective after rootfs replacement:
+  `upgrade.log` shows boot and rootfs writes completed, then `sync` became
+  unavailable and both completion and watchdog `reboot -f` calls failed with
+  `No error information`.
+- Repository now has a candidate fix for the reboot issue, but it still needs an
+  on-device SSH upgrade retest.
 
 ## Risks
 
@@ -108,17 +128,21 @@ Result:
 - The target device previously dropped SSH when entering an OpenWrt stage2-style
   RAM upgrade test, so the final SSH updater must include watchdogs, timeouts,
   and a forced reboot fallback.
+- The SSH writer did not automatically reboot the device after a successful
+  upgrade test, even though the script has completion and watchdog `reboot -f`
+  calls. This should be diagnosed before making SSH upgrade packages a normal
+  workflow output.
+- After `rootfs` is overwritten, commands resolved from the active rootfs may
+  disappear or fail. The writer should avoid depending on rootfs-backed
+  `sync`/`reboot` after `dd` starts.
 - The RJ45 path is USB-host-attached CDC Ethernet; network behavior during a RAM
   upgrade must be tested on the real device.
-- `upgrade` must be formatted after the first full flash before it can be used
-  for staging.
 - Workflow output must wait until the manual flash and SSH upgrade path is
   proven.
 
 ## Next Step
 
-On the device, verify `upgrade` exists and run
-`scripts/ssh_upgrade_ufi003.sh` from the host. The script should auto-format
-the `upgrade` partition on first use if it cannot be mounted. If that passes,
+Retest `scripts/ssh_upgrade_ufi003.sh` on the UFI003 and confirm the device
+automatically reboots after rootfs writing. After automatic reboot is proven,
 update `.github/workflows/build-immortalwrt-msm8916.yml` to emit an SSH upgrade
 package.

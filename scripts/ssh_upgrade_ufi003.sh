@@ -248,7 +248,7 @@ info "Checking SSH connectivity and device tools..."
 remote_script "$FORMAT_UPGRADE" <<'REMOTE'
 set -eu
 format_upgrade=$1
-for tool in dd gzip sha256sum readlink mount mkdir rm sync reboot wc tr sleep kill date awk cat sh; do
+for tool in busybox cp dd gzip sha256sum readlink mount mkdir rm sync reboot wc tr sleep kill date awk cat sh; do
     command -v "$tool" >/dev/null 2>&1 || {
         echo "missing required device tool: $tool" >&2
         exit 1
@@ -411,17 +411,36 @@ echo "boot device: $boot_dev"
 echo "rootfs device: $rootfs_dev"
 echo "stage dir: $stage_dir"
 
+tool_dir=/tmp/ufi003-ssh-upgrade-tools
+busybox_src=$(command -v busybox)
+mkdir -p "$tool_dir"
+cp "$busybox_src" "$tool_dir/busybox"
+bb="$tool_dir/busybox"
+
+hard_sync() {
+    "$bb" sync 2>/dev/null || sync 2>/dev/null || true
+}
+
+hard_reboot() {
+    hard_sync
+    "$bb" reboot -f 2>/dev/null || reboot -f 2>/dev/null || {
+        echo 1 > /proc/sys/kernel/sysrq 2>/dev/null || true
+        echo b > /proc/sysrq-trigger 2>/dev/null || true
+    }
+    while :; do
+        "$bb" sleep 1 2>/dev/null || sleep 1
+    done
+}
+
 (
-    sleep "$reboot_timeout"
+    "$bb" sleep "$reboot_timeout"
     echo "watchdog timeout reached; forcing reboot"
-    sync || true
-    reboot -f
+    hard_reboot
 ) &
 watchdog_pid=$!
 
 finish_reboot() {
-    sync || true
-    reboot -f
+    hard_reboot
 }
 trap finish_reboot EXIT HUP INT TERM
 
@@ -449,11 +468,11 @@ dd if=boot.img of="$boot_dev" bs=1M conv=fsync
 echo "writing rootfs..."
 gzip -dc rootfs.raw.img.gz | dd of="$rootfs_dev" bs=1M conv=fsync
 
-sync
-kill "$watchdog_pid" 2>/dev/null || true
+hard_sync
+"$bb" kill "$watchdog_pid" 2>/dev/null || kill "$watchdog_pid" 2>/dev/null || true
 trap - EXIT HUP INT TERM
 echo "upgrade completed; rebooting"
-reboot -f
+hard_reboot
 REMOTE
 
 info "Installing remote writer..."
