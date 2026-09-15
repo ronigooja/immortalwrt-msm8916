@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# Allow Tailscale exit-node traffic to leave through the normal WAN zone.
+uci -q delete firewall.tailscale
+uci set firewall.tailscale='zone'
+uci set firewall.tailscale.name='tailscale'
+uci set firewall.tailscale.input='ACCEPT'
+uci set firewall.tailscale.output='ACCEPT'
+uci set firewall.tailscale.forward='ACCEPT'
+uci add_list firewall.tailscale.device='tailscale0'
+
+uci -q delete firewall.tailscale_wan
+uci set firewall.tailscale_wan='forwarding'
+uci set firewall.tailscale_wan.src='tailscale'
+uci set firewall.tailscale_wan.dest='wan'
+
+uci commit firewall
+
+/etc/init.d/firewall reload 2>/dev/null || true
+
+exit 0
