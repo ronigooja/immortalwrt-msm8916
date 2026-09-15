@@ -453,7 +453,11 @@ led_set() {
 }
 
 led_delay_fast() {
-    "$bb" usleep 200000 2>/dev/null || "$bb" sleep 1
+    "$bb" usleep 100000 2>/dev/null || "$bb" sleep 1
+}
+
+led_delay_success() {
+    "$bb" usleep 300000 2>/dev/null || "$bb" sleep 1
 }
 
 set_upgrade_leds_off() {
@@ -487,8 +491,13 @@ stop_upgrade_leds() {
 
 show_success_led() {
     set_upgrade_leds_off
-    led_set "$blue_led" 1
-    "$bb" sleep 10
+    success_end=$(( $("$bb" date +%s) + 10 ))
+    while [ "$("$bb" date +%s)" -lt "$success_end" ]; do
+        led_set "$blue_led" 1
+        led_delay_success
+        led_set "$blue_led" 0
+        led_delay_success
+    done
     led_set "$blue_led" 0
 }
 
