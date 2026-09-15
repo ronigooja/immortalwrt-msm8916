@@ -27,6 +27,60 @@ for cfg in target/linux/msm89xx/config-*; do
   done
 done
 
+# 启用 UFI/OpenStick 的标准 USB role-switch 节点，供 /sys/class/usb_role/*/role 控制 host/device。
+ufi_dtsi="target/linux/msm89xx/dts/msm8916-ufi.dtsi"
+if [ -f "$ufi_dtsi" ]; then
+  insert_usb_property() {
+    local property="$1"
+    local tmp="${ufi_dtsi}.tmp"
+
+    awk -v property="$property" '
+      /^&usb[[:space:]]*{/ { in_usb = 1 }
+      in_usb && /^[[:space:]]*status[[:space:]]*=[[:space:]]*"okay";/ {
+        print "\t" property
+      }
+      { print }
+      in_usb && /^};/ { in_usb = 0 }
+    ' "$ufi_dtsi" > "$tmp" && mv "$tmp" "$ufi_dtsi"
+  }
+
+  if ! awk '
+    /^&usb[[:space:]]*{/ { in_usb = 1 }
+    in_usb && /dr_mode[[:space:]]*=[[:space:]]*"otg";/ { found = 1 }
+    in_usb && /^};/ { in_usb = 0 }
+    END { exit found ? 0 : 1 }
+  ' "$ufi_dtsi"; then
+    insert_usb_property 'dr_mode = "otg";'
+  fi
+
+  if ! awk '
+    /^&usb[[:space:]]*{/ { in_usb = 1 }
+    in_usb && /usb-role-switch;/ { found = 1 }
+    in_usb && /^};/ { in_usb = 0 }
+    END { exit found ? 0 : 1 }
+  ' "$ufi_dtsi"; then
+    insert_usb_property 'usb-role-switch;'
+  fi
+
+  grep -A8 '^&usb[[:space:]]*{' "$ufi_dtsi"
+else
+  echo "WARN: $ufi_dtsi not found, skip USB role-switch DTS tweak"
+fi
+
+# 固定打开 role switch/extcon 支持；上游已通常开启，这里保底避免配置漂移。
+for cfg in target/linux/msm89xx/config-*; do
+  [ -f "$cfg" ] || continue
+
+  for opt in \
+    CONFIG_USB_ROLE_SWITCH \
+    CONFIG_EXTCON \
+    CONFIG_EXTCON_USB_GPIO
+  do
+    sed -i "/^${opt}=/d;/^# ${opt} is not set/d" "$cfg"
+    echo "${opt}=y" >> "$cfg"
+  done
+done
+
 
 # 临时添加的插件
 # git clone https://github.com/lkiuyu/luci-app-cpu-perf package/luci-app-cpu-perf
