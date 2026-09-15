@@ -393,7 +393,7 @@ jobs:
         gzip -dk flash_package/boot.img.gz
         gzip -dk flash_package/system.img.gz
         rm flash_package/boot.img.gz flash_package/system.img.gz
-        cp -r $GITHUB_WORKSPACE/刷机脚本/. flash_package/
+        cp -r $GITHUB_WORKSPACE/release-flash-package/. flash_package/
         # 确保 bat 文件是 CRLF 换行（Windows 兼容）
         unix2dos flash_package/*.bat 2>/dev/null || sed -i 's/\r//' flash_package/*.bat && sed -i 's/$/\r/' flash_package/*.bat
         ZIP_NAME="OpenWrt_${PROFILE}${{ env.FILE_DATE }}_刷机包.zip"
