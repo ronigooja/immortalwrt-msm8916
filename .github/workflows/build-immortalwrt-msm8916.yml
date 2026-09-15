@@ -206,8 +206,10 @@ jobs:
           dl-${{ runner.os }}-${{ github.event.inputs.upstream }}-
           dl-${{ runner.os }}-
 
-    - name:  files
-      run: cp -r files openwrt/files
+    - name: Copy firmware overlay
+      run: |
+        rm -rf openwrt/files
+        cp -a files openwrt/files
 
     - name: Load custom feeds
       run: |
@@ -229,7 +231,6 @@ jobs:
 
     - name: Load custom configuration
       run: |
-        [ -e files ] && mv files openwrt/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
         chmod +x $DIY_P2_SH
         cd openwrt
@@ -387,12 +388,20 @@ jobs:
           ls -la
           exit 1
         fi
-        cp "$BOOT_IMG" flash_package/boot.img.gz
-        cp "$SYSTEM_IMG" flash_package/system.img.gz
-        # 解压供刷机脚本使用
-        gzip -dk flash_package/boot.img.gz
-        gzip -dk flash_package/system.img.gz
-        rm flash_package/boot.img.gz flash_package/system.img.gz
+        copy_image() {
+          src="$1"
+          dst="$2"
+          case "$src" in
+            *.gz)
+              gzip -dc "$src" > "$dst"
+              ;;
+            *)
+              cp "$src" "$dst"
+              ;;
+          esac
+        }
+        copy_image "$BOOT_IMG" flash_package/boot.img
+        copy_image "$SYSTEM_IMG" flash_package/system.img
         cp -r $GITHUB_WORKSPACE/release-flash-package/. flash_package/
         # 确保 bat 文件是 CRLF 换行（Windows 兼容）
         unix2dos flash_package/*.bat 2>/dev/null || sed -i 's/\r//' flash_package/*.bat && sed -i 's/$/\r/' flash_package/*.bat
