@@ -74,8 +74,15 @@ jobs:
         GH_TOKEN: ${{ secrets.RUNNER_ADMIN_TOKEN || github.token }}
       run: |
         RUNNER="ubuntu-latest"
-        RUNNERS_JSON=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runners" 2>/dev/null || true)
-        if echo "$RUNNERS_JSON" | jq -e '.runners[]? | select(.status == "online" and any(.labels[]?; .name == "self-hosted"))' >/dev/null; then
+        RUNNERS_JSON=$(mktemp)
+        HTTP_CODE=$(curl -fsS -w "%{http_code}" -o "$RUNNERS_JSON" \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${GH_TOKEN}" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runners" || true)
+        echo "Runner API HTTP status: ${HTTP_CODE:-request-failed}"
+        jq -r '.runners[]? | "Runner: \(.name) status=\(.status) busy=\(.busy) labels=\([.labels[]?.name] | join(","))"' "$RUNNERS_JSON" || true
+        if [ "$HTTP_CODE" = "200" ] && jq -e '.runners[]? | select(.status == "online" and any(.labels[]?; .name == "self-hosted"))' "$RUNNERS_JSON" >/dev/null; then
           RUNNER="self-hosted"
         fi
         echo "runner=$RUNNER" >> "$GITHUB_OUTPUT"
