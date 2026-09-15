@@ -49,9 +49,9 @@ The main firmware workflow:
 ## Self-Hosted Runner Setup
 
 Use `scripts/setup-self-hosted-runner.sh` after reinstalling a Ubuntu 22.04 VPS
-that will run the main firmware workflow. If the user says to trigger the
-firmware build workflow and provides a self-hosted runner IP or host, run this
-setup script for that host first:
+that will run the main firmware workflow. If the user explicitly asks to compile
+with `self-hosted-runner`, run this setup script for the provided runner IP or
+host first:
 
 ```bash
 ./scripts/setup-self-hosted-runner.sh <runner-ip-or-hostname>

@@ -25,11 +25,11 @@ documentation in English.
 
 - Device build profiles: `config/*.config`
 - GitHub Actions firmware build: `.github/workflows/build-immortalwrt-msm8916.yml`
-- Self-hosted runner build request: when the user says to trigger the firmware
-  build workflow and provides a self-hosted runner IP or host, first run
-  `./scripts/setup-self-hosted-runner.sh <runner-ip-or-hostname>`. Do not call
-  GitHub workflow dispatch before that setup script finishes and the runner is
-  visible online.
+- Self-hosted runner build request: when the user explicitly asks to compile
+  with `self-hosted-runner`, first run
+  `./scripts/setup-self-hosted-runner.sh <runner-ip-or-hostname>` for the
+  provided runner IP or host. Do not call GitHub workflow dispatch before that
+  setup script finishes and the runner is visible online.
 - OpenWrt source customization: `diy-part1.sh`, `diy-part2.sh`
 - Firmware overlay files: `files/`
 - Flashing tool: `flashtool/`
