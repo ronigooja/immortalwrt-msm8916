@@ -68,11 +68,11 @@ device-side upgrade path is proven.
 - Device-side writer now copies BusyBox into `/tmp` before writing `rootfs` and
   uses that copy for post-write `sync`, watchdog sleep, process cleanup, and
   forced reboot. If BusyBox reboot fails, it falls back to `/proc/sysrq-trigger`.
-- During SSH upgrade, the device-side writer flashes `red:power` at 0.1 second
-  intervals while writing partitions, then flashes `blue:wan` at 0.3 second
+- During SSH upgrade, the device-side writer flashes `red:power` at 0.2 second
+  intervals while writing partitions, then flashes `blue:wan` at 0.5 second
   intervals for about 10 seconds after a clean write before rebooting. LED
-  control is best-effort and must not block flashing if an LED sysfs node is
-  missing.
+  control prefers the kernel LED `timer` trigger for accurate timing, and is
+  best-effort if an LED sysfs node is missing.
 - Do not change the firmware workflow to emit SSH upgrade packages until manual
   device testing passes.
 
@@ -166,7 +166,8 @@ Result:
 ## Next Step
 
 Retest `scripts/ssh_upgrade_ufi003.sh` on UFI003 and visually confirm red
-flashing during partition writes plus blue flashing for 10 seconds before reboot. Then
+0.2-second flashing during partition writes plus blue 0.5-second flashing for
+10 seconds before reboot. Then
 update `.github/workflows/build-immortalwrt-msm8916.yml` to emit an SSH upgrade
 package and verify the generated package contains `boot.img` plus the compressed
 raw rootfs image expected by the SSH upgrade script.

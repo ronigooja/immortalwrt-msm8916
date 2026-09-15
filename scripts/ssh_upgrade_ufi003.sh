@@ -453,11 +453,27 @@ led_set() {
 }
 
 led_delay_fast() {
-    "$bb" usleep 100000 2>/dev/null || "$bb" sleep 1
+    "$bb" usleep 200000 2>/dev/null || "$bb" sleep 1
 }
 
 led_delay_success() {
-    "$bb" usleep 300000 2>/dev/null || "$bb" sleep 1
+    "$bb" usleep 500000 2>/dev/null || "$bb" sleep 1
+}
+
+led_timer_start() {
+    led=$1
+    delay_on=$2
+    delay_off=$3
+    trigger_path="/sys/class/leds/$led/trigger"
+    delay_on_path="/sys/class/leds/$led/delay_on"
+    delay_off_path="/sys/class/leds/$led/delay_off"
+
+    [ -w "$trigger_path" ] || return 1
+    echo timer > "$trigger_path" 2>/dev/null || return 1
+    [ -w "$delay_on_path" ] || return 1
+    [ -w "$delay_off_path" ] || return 1
+    echo "$delay_on" > "$delay_on_path" 2>/dev/null || return 1
+    echo "$delay_off" > "$delay_off_path" 2>/dev/null || return 1
 }
 
 set_upgrade_leds_off() {
@@ -476,8 +492,13 @@ blink_red_upgrade() {
 }
 
 start_upgrade_leds() {
-    blink_red_upgrade &
-    red_blink_pid=$!
+    set_upgrade_leds_off
+    if led_timer_start "$red_led" 200 200; then
+        :
+    else
+        blink_red_upgrade &
+        red_blink_pid=$!
+    fi
 }
 
 stop_upgrade_leds() {
@@ -491,13 +512,17 @@ stop_upgrade_leds() {
 
 show_success_led() {
     set_upgrade_leds_off
-    success_end=$(( $("$bb" date +%s) + 10 ))
-    while [ "$("$bb" date +%s)" -lt "$success_end" ]; do
-        led_set "$blue_led" 1
-        led_delay_success
-        led_set "$blue_led" 0
-        led_delay_success
-    done
+    if led_timer_start "$blue_led" 500 500; then
+        "$bb" sleep 10
+    else
+        success_end=$(( $("$bb" date +%s) + 10 ))
+        while [ "$("$bb" date +%s)" -lt "$success_end" ]; do
+            led_set "$blue_led" 1
+            led_delay_success
+            led_set "$blue_led" 0
+            led_delay_success
+        done
+    fi
     led_set "$blue_led" 0
 }
 
