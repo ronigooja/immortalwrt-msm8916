@@ -432,6 +432,66 @@ hard_reboot() {
     done
 }
 
+red_led="red:power"
+blue_led="blue:wan"
+red_blink_pid=""
+
+led_write() {
+    led_path="/sys/class/leds/$1/$2"
+    if [ -w "$led_path" ]; then
+        echo "$3" > "$led_path" 2>/dev/null || true
+    fi
+}
+
+led_prepare() {
+    led_write "$1" trigger none
+}
+
+led_set() {
+    led_prepare "$1"
+    led_write "$1" brightness "$2"
+}
+
+led_delay_fast() {
+    "$bb" usleep 200000 2>/dev/null || "$bb" sleep 1
+}
+
+set_upgrade_leds_off() {
+    led_set "$red_led" 0
+    led_set "$blue_led" 0
+}
+
+blink_red_upgrade() {
+    set_upgrade_leds_off
+    while :; do
+        led_set "$red_led" 1
+        led_delay_fast
+        led_set "$red_led" 0
+        led_delay_fast
+    done
+}
+
+start_upgrade_leds() {
+    blink_red_upgrade &
+    red_blink_pid=$!
+}
+
+stop_upgrade_leds() {
+    if [ -n "$red_blink_pid" ]; then
+        "$bb" kill "$red_blink_pid" 2>/dev/null || kill "$red_blink_pid" 2>/dev/null || true
+        wait "$red_blink_pid" 2>/dev/null || true
+        red_blink_pid=""
+    fi
+    set_upgrade_leds_off
+}
+
+show_success_led() {
+    set_upgrade_leds_off
+    led_set "$blue_led" 1
+    "$bb" sleep 10
+    led_set "$blue_led" 0
+}
+
 (
     "$bb" sleep "$reboot_timeout"
     echo "watchdog timeout reached; forcing reboot"
@@ -462,6 +522,9 @@ rootfs_limit=$(block_bytes "$rootfs_dev")
 
 echo 3 > /proc/sys/vm/drop_caches 2>/dev/null || true
 
+echo "starting red upgrade indicator..."
+start_upgrade_leds
+
 echo "writing boot..."
 dd if=boot.img of="$boot_dev" bs=1M conv=fsync
 
@@ -470,6 +533,9 @@ gzip -dc rootfs.raw.img.gz | dd of="$rootfs_dev" bs=1M conv=fsync
 
 hard_sync
 "$bb" kill "$watchdog_pid" 2>/dev/null || kill "$watchdog_pid" 2>/dev/null || true
+stop_upgrade_leds
+echo "upgrade completed; showing blue success indicator"
+show_success_led
 trap - EXIT HUP INT TERM
 echo "upgrade completed; rebooting"
 hard_reboot

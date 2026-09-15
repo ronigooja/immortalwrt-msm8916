@@ -68,6 +68,10 @@ device-side upgrade path is proven.
 - Device-side writer now copies BusyBox into `/tmp` before writing `rootfs` and
   uses that copy for post-write `sync`, watchdog sleep, process cleanup, and
   forced reboot. If BusyBox reboot fails, it falls back to `/proc/sysrq-trigger`.
+- During SSH upgrade, the device-side writer flashes `red:power` while writing
+  partitions, then turns on `blue:wan` for 10 seconds after a clean write before
+  rebooting. LED control is best-effort and must not block flashing if an LED
+  sysfs node is missing.
 - Do not change the firmware workflow to emit SSH upgrade packages until manual
   device testing passes.
 
@@ -98,11 +102,22 @@ Run:
   - `bash -n scripts/ssh_upgrade_ufi003.sh`
   - `shellcheck scripts/ssh_upgrade_ufi003.sh`
   - `scripts/ssh_upgrade_ufi003.sh --help`
+- Retested the BusyBox-backed reboot fix on UFI003:
+  - Device automatically rebooted within a few minutes after rootfs writing.
+  - Device came back online and SSH was reachable.
+  - A first post-reboot attempt to mount `upgrade` failed with a wrong
+    filesystem/bad superblock style error.
+  - A later post-reboot mount succeeded and `upgrade.log` showed
+    `upgrade completed; rebooting`.
+- Added SSH upgrade LED indicators, then ran:
+  - `bash -n scripts/ssh_upgrade_ufi003.sh`
+  - `shellcheck scripts/ssh_upgrade_ufi003.sh`
+  - `scripts/ssh_upgrade_ufi003.sh --help`
 
 Not run:
 
 - Workflow changes for SSH upgrade package output.
-- Retest of an automatic reboot fix.
+- On-device verification of the new LED indicator behavior.
 
 Result:
 
@@ -120,6 +135,11 @@ Result:
   `No error information`.
 - Repository now has a candidate fix for the reboot issue, but it still needs an
   on-device SSH upgrade retest.
+- The BusyBox-backed reboot fix is verified on-device: the device automatically
+  rebooted, came back online, and the persistent log confirms the clean
+  completion path reached `upgrade completed; rebooting`.
+- Repository now has a candidate LED indicator update for SSH upgrade, but it
+  still needs on-device visual verification.
 
 ## Risks
 
@@ -137,12 +157,15 @@ Result:
   `sync`/`reboot` after `dd` starts.
 - The RJ45 path is USB-host-attached CDC Ethernet; network behavior during a RAM
   upgrade must be tested on the real device.
-- Workflow output must wait until the manual flash and SSH upgrade path is
-  proven.
+- Workflow output can now be added, but it still touches the firmware build and
+  release path, so verify generated artifacts before relying on them.
+- LED names are based on existing overlay usage (`red:power` and `blue:wan`);
+  if a hardware variant exposes different names, indicators will be skipped.
 
 ## Next Step
 
-Retest `scripts/ssh_upgrade_ufi003.sh` on the UFI003 and confirm the device
-automatically reboots after rootfs writing. After automatic reboot is proven,
+Retest `scripts/ssh_upgrade_ufi003.sh` on UFI003 and visually confirm red
+flashing during partition writes plus blue-on for 10 seconds before reboot. Then
 update `.github/workflows/build-immortalwrt-msm8916.yml` to emit an SSH upgrade
-package.
+package and verify the generated package contains `boot.img` plus the compressed
+raw rootfs image expected by the SSH upgrade script.
