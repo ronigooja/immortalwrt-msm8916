@@ -55,7 +55,6 @@ change looks small.
 
 ## Documentation Rules
 
-- User-facing docs live in `README.md`, `README_EN.md`, and tutorial images.
-- AI-facing docs live in `AGENTS.md`, `docs/project-map.md`,
+- Project docs live in `AGENTS.md`, `docs/project-map.md`,
   `docs/task-playbooks.md`, and `docs/risk-boundaries.md`.
-- Keep AI-facing docs short, operational, and synchronized with real behavior.
+- Keep project docs short, operational, and synchronized with real behavior.

@@ -1,9 +1,9 @@
-# AI Entry Guide
+# Repository Agent Guide
 
 This repository builds customized ImmortalWrt firmware for Qualcomm MSM8916
 portable Wi-Fi devices and provides helper assets for flashing and device setup.
 
-AI agents should use this file as the starting point, then read only the project
+Agents should use this file as the starting point, then read only the project
 documents needed for the current task.
 
 During execution, use English for working updates and tool-facing process
@@ -23,12 +23,17 @@ documentation in English.
 
 ## Task Routing
 
-- GitHub Actions firmware build: `.github/workflows/build-immortalwrt-msm8916.yml`
 - Device build profiles: `config/*.config`
+- GitHub Actions firmware build: `.github/workflows/build-immortalwrt-msm8916.yml`
+- Self-hosted runner build request: when the user says to trigger the firmware
+  build workflow and provides a self-hosted runner IP or host, first run
+  `./scripts/setup-self-hosted-runner.sh <runner-ip-or-hostname>`. Do not call
+  GitHub workflow dispatch before that setup script finishes and the runner is
+  visible online.
 - OpenWrt source customization: `diy-part1.sh`, `diy-part2.sh`
 - Firmware overlay files: `files/`
 - Flashing tool: `flashtool/`
-- User-facing documentation: `README.md`, `README_EN.md`, `assets/screenshots/`
+- Repository documentation: `docs/`
 
 ## Hard Rules
 
@@ -43,9 +48,9 @@ documentation in English.
 - Do not casually edit binary firmware, baseband, or flashing assets.
 - Treat partition names, baseband backup/restore logic, and Fastboot operations
   as high-risk.
-- Keep AI-facing documentation concise and action-oriented. Avoid duplicating the
+- Keep repository documentation concise and action-oriented. Avoid duplicating the
   full README tutorial unless it helps future maintenance.
-- When changing behavior, update the relevant AI-facing document if the project
+- When changing behavior, update the relevant repository document if the project
   map, task flow, or risk boundary changed.
 
 ## Delivery Expectations

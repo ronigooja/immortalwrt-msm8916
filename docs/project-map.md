@@ -2,7 +2,7 @@
 
 This project is a GitHub Actions based ImmortalWrt firmware builder for Qualcomm
 MSM8916 / Snapdragon 410 portable Wi-Fi devices. It also includes firmware
-overlay files, device build configs, AI-facing maintenance documents, and a Go
+overlay files, device build configs, project maintenance documents, and a Go
 based flashing tool.
 
 ## Main Areas
@@ -21,9 +21,7 @@ based flashing tool.
 | `flashtool/` | Go flashing tool and bundled low-level ROM assets. |
 | `legacy-tools/` | Archived helper packages, drivers, baseband bundles, and legacy tools. |
 | `release-flash-package/` | Files bundled into the one-click flash package after a successful build. |
-| `assets/screenshots/` | Tutorial screenshots used by the READMEs. |
-| `docs/` | AI-facing project documents and task state records. |
-| `README.md`, `README_EN.md` | User-facing build and flashing guide. |
+| `docs/` | Project documents and task state records. |
 | `upstream_lock.txt` | Manually maintained upstream commit used by builds unless overridden. |
 | `upstream_history.txt` | Historical upstream commits kept for fallback reference. |
 

@@ -16,7 +16,7 @@ Default flow:
 1. Define the user-visible value and affected areas.
 2. Find the closest existing implementation.
 3. Make the smallest complete implementation.
-4. Update user-facing or AI-facing docs when behavior changes.
+4. Update user-facing or repository docs when behavior changes.
 5. Verify the main path.
 
 Report:
