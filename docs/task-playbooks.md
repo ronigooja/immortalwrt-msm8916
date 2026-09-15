@@ -196,7 +196,7 @@ Read:
 - `flashtool/main.go`
 - `flashtool/fastboot/`
 - `flashtool/winenv/`
-- `.github/workflows/Build_刷机工具.yml`
+- `.github/workflows/build-flashtool.yml`
 - `docs/risk-boundaries.md`
 
 Common edits:

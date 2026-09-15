@@ -1,4 +1,4 @@
-name: 🔧 Build_傻瓜刷机工具
+name: Build Flash Tool
 
 on:
   workflow_dispatch:
@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    name: 编译刷机工具
+    name: Build flash tool
     runs-on: ubuntu-latest
     permissions:
       contents: write
