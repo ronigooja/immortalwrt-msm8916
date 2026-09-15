@@ -10,6 +10,9 @@ chmod 600 /etc/dropbear/authorized_keys
 
 uci -q show dropbear.@dropbear[0] >/dev/null || uci add dropbear dropbear >/dev/null
 uci -q delete dropbear.@dropbear[0].Interface
+uci -q delete dropbear.@dropbear[0].DirectInterface
+uci -q delete dropbear.@dropbear[0]._direct
+uci set dropbear.@dropbear[0].Port='22'
 uci set dropbear.@dropbear[0].PasswordAuth='off'
 uci set dropbear.@dropbear[0].RootPasswordAuth='off'
 uci commit dropbear
@@ -22,5 +25,8 @@ uci set firewall.allow_ssh.proto='tcp'
 uci set firewall.allow_ssh.dest_port='22'
 uci set firewall.allow_ssh.target='ACCEPT'
 uci commit firewall
+
+/etc/init.d/firewall reload 2>/dev/null || true
+/etc/init.d/dropbear restart 2>/dev/null || true
 
 exit 0
