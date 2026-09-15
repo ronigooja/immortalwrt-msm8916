@@ -37,6 +37,7 @@ device-side upgrade path is proven.
 - `flashtool/rom/gpt_both0.bin.backup-before-upgrade-partition-20260915`
 - `flashtool/rom/gpt_both0.bin.backup-upgrade-1280m-20260915`
 - `scripts/make_upgrade_gpt.py`
+- `scripts/ssh_upgrade_ufi003.sh`
 - `docs/task-states/2026-09-15-ssh-upgrade-support.md`
 
 ## Decisions
@@ -53,6 +54,11 @@ device-side upgrade path is proven.
 - Use host-side conversion from full package `system.img` to
   `rootfs.raw.img.gz`; `system.img` is Android sparse and must not be written
   directly to `rootfs` with `dd`.
+- Add a host-side SSH upgrade test script before adding workflow package output.
+  The script stages files on the device `upgrade` partition, verifies hashes and
+  partition sizes, then launches a detached device-side writer from `/tmp`.
+- The SSH upgrade script auto-mounts the `upgrade` partition and formats it as
+  ext4 on first use when it cannot be mounted.
 - Do not change the firmware workflow to emit SSH upgrade packages until manual
   device testing passes.
 
@@ -70,10 +76,13 @@ Run:
 - Ran `python3 scripts/make_upgrade_gpt.py --dry-run`.
 - Ran `python3 scripts/make_upgrade_gpt.py --output /tmp/gpt_both0-script-test.bin --no-backup`
   and confirmed the output matched the current GPT with `cmp`.
+- Ran `bash -n scripts/ssh_upgrade_ufi003.sh`.
+- Ran `shellcheck scripts/ssh_upgrade_ufi003.sh`.
+- Ran `scripts/ssh_upgrade_ufi003.sh --help`.
 
 Not run:
 
-- Full flash with the new GPT on the UFI003 device.
+- End-to-end `scripts/ssh_upgrade_ufi003.sh` execution on the UFI003 device.
 - First boot verification that `/dev/disk/by-partlabel/upgrade` appears.
 - Formatting and mounting the `upgrade` partition on-device.
 - End-to-end SSH upgrade from staged `boot.img` and `rootfs.raw.img.gz`.
@@ -84,7 +93,8 @@ Result:
 - Repository now contains a GPT payload with `rootfs` plus `upgrade`.
 - The helper script can reproduce the current GPT layout and accepts partition
   size parameters.
-- Hardware flashing and SSH upgrade remain unverified.
+- Repository now contains a host-side SSH upgrade test script for UFI003.
+- Hardware SSH upgrade remains unverified.
 
 ## Risks
 
@@ -102,8 +112,8 @@ Result:
 
 ## Next Step
 
-Flash the full package using the updated `flashtool/rom/gpt_both0.bin`, then on
-the device verify `upgrade` exists, format it, mount it, stage
-`boot.img`/`rootfs.raw.img.gz`, and test the SSH upgrade procedure. If that
-passes, update `.github/workflows/build-immortalwrt-msm8916.yml` to emit an SSH upgrade
+On the device, verify `upgrade` exists and run
+`scripts/ssh_upgrade_ufi003.sh` from the host. The script should auto-format
+the `upgrade` partition on first use if it cannot be mounted. If that passes,
+update `.github/workflows/build-immortalwrt-msm8916.yml` to emit an SSH upgrade
 package.
