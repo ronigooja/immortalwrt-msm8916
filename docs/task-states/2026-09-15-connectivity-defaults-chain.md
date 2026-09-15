@@ -1,14 +1,14 @@
-# Connectivity Defaults Chain Task State
+# Connectivity Defaults Chain
 
 ## Task
 
-Record the final landed behavior from commits after
-`e21d545d00a5ba49ed4f0113e0ec21a704005d18`, excluding documentation-only
-changes.
+Make `ufi003` keep a usable management path after first boot by combining USB
+device detection, USB-RJ45 WAN fallback, SSH key-only access, temporary hidden
+hotspot setup, and Tailscale exit-node forwarding.
 
 ## Type
 
-Troubleshooting / Feature / Optimization
+Troubleshooting / Feature
 
 ## Phase
 
@@ -16,48 +16,14 @@ Handoff
 
 ## Goal
 
-Preserve the final "small combo" that makes the msm8916 firmware easier to
-build, flash, reach over SSH, use through USB-RJ45 fallback WAN, and run as a
-Tailscale exit node.
-
-## Commit Range Reviewed
-
-Start point:
-
-- `e21d545d00a5ba49ed4f0113e0ec21a704005d18` (`Remove 'tailscale' from smpackage to prevent conflicts`)
-
-Behavior/build commits included:
-
-- `3faf8e7` / `48c0ba7`: adjust the Qualcomm 410 build workflow.
-- `fb99f0a`: move Tailscale exit-node routing kernel options into
-  `diy-part2.sh`.
-- `2de0d33`: add boot-time USB role autodetection.
-- `0908e13`: add OpenWrt download and ccache handling to the build workflow.
-- `5ee88bb`: add default `eth0` WAN configuration.
-- `1769d00`: make USB device mode light the default board LED state.
-- `cd5a238`: add SSH public-key-only defaults.
-- `1e13ca0`: add hidden hotspot defaults and timed AP shutdown.
-- `7b4c61c`: remove `eth0` from `br-lan` by device name before assigning WAN.
-- `dea23fa`: fix OpenWrt config mutation in the workflow.
-- `159c4de`: patch UFI/OpenStick DTS for the standard USB role-switch node.
-- `b5708e3`: simplify firmware build workflows by removing unused workflows.
-- `1ceb388`: add the current Windows flash package scripts.
-- `6a90cfc`: remove bundled homepage files and legacy flash scripts.
-- `2f6f9ea`: bring up WAN after USB host fallback.
-- `f2a9d29`: tune runtime USB role handling and keep startup in `rc.local`.
-- `b9e8733`: ensure SSH access defaults apply even when Dropbear config is
-  missing or constrained.
-- `30070e8`: correct the hotspot SSID and suppress the no-password banner
-  warning.
-- `2459aa5`: add the final Tailscale firewall zone and forwarding default.
-
-Final commit treated as truth:
-
-- `2459aa5eea6cfaf1df2db5a73b5ee13f3cd14a7f`
+Produce firmware defaults where `ufi003` first tries to expose a USB device
+connection to a computer, falls back to USB host mode for Ethernet WAN when no
+computer is detected, and remains reachable through SSH during normal use.
 
 ## Files Read
 
 - `.github/workflows/Build_高通410 imm.yml`
+- `config/ufi003.config`
 - `diy-part2.sh`
 - `files/etc/rc.local`
 - `files/etc/init.d/wifi-autooff`
@@ -68,11 +34,10 @@ Final commit treated as truth:
 - `files/usr/sbin/usb-role-autodetect`
 - `files/usr/sbin/wifi-hotspot-off`
 
-## Files Changed In Reviewed Behavior Chain
+## Files Changed
 
 - `.github/workflows/Build_高通410 imm.yml`
-- `.github/workflows/pages.yml`
-- `.github/workflows/定时更新hash.yml`
+- `config/ufi003.config`
 - `diy-part2.sh`
 - `files/etc/dropbear/authorized_keys`
 - `files/etc/init.d/wifi-autooff`
@@ -83,89 +48,63 @@ Final commit treated as truth:
 - `files/etc/uci-defaults/99-tailscale-exit-node-firewall`
 - `files/usr/sbin/usb-role-autodetect`
 - `files/usr/sbin/wifi-hotspot-off`
-- `files/www/content.json`
-- `files/www/index.html`
-- `files/www/index_原版备份.html`
-- `刷机脚本/firstflash.bat`
-- `刷机脚本/upgrade.bat`
-- `刷机脚本/一键升级补丁.bat`
-- `刷机脚本/把编译好的文件改名成boot.img和system.img.txt`
 
-## Final Landed Behavior
+## Decisions
 
-- Build defaults now include `tailscale`, `ethtool`, useful shell/debug tools,
-  OpenSSH SFTP support, IPv6 DHCP packages, default management IP
-  `192.168.77.1`, and default hostname `Unknown`.
-- The workflow restores OpenWrt download cache and ccache, enables `CONFIG_DEVEL`,
-  `CONFIG_CCACHE`, `CONFIG_CCACHE_DIR`, and `CONFIG_PACKAGE_ethtool`, then runs
-  `make defconfig`.
-- `diy-part2.sh` keeps Tailscale exit-node routing support enabled by forcing
-  `CONFIG_IP_ADVANCED_ROUTER`, `CONFIG_IP_MULTIPLE_TABLES`, and
-  `CONFIG_IP_ROUTE_FWMARK` in `target/linux/msm89xx/config-*`.
-- `diy-part2.sh` patches `target/linux/msm89xx/dts/msm8916-ufi.dtsi` so the
-  UFI/OpenStick USB controller has `dr_mode = "otg";` and `usb-role-switch;`,
-  then forces `CONFIG_USB_ROLE_SWITCH`, `CONFIG_EXTCON`, and
-  `CONFIG_EXTCON_USB_GPIO`.
-- `rc.local` starts `/usr/sbin/usb-role-autodetect` in the background at boot.
-- `usb-role-autodetect` first tries USB device mode, waits up to 12 seconds for
-  a computer connection, lights `green:wlan` when device mode remains active,
-  then falls back to host mode for USB-RJ45 if no computer is detected.
-- After USB host fallback, `usb-role-autodetect` waits for `eth0`, applies
-  `ethtool -K eth0 rx-udp-gro-forwarding on rx-gro-list off` when available,
-  and runs `ifup wan` plus `ifup wan6`.
-- First boot removes `eth0` from `br-lan` by finding the actual `br-lan` device
-  section, then creates DHCP `wan` and DHCPv6 `wan6` on `eth0`.
-- First boot writes the configured SSH public key, disables password and root
-  password auth in Dropbear, removes interface restrictions, opens TCP/22 in
-  firewall, reloads firewall, and restarts Dropbear.
-- First boot configures the AP as hidden SSID `Unknown` with WPA2 key
-  `88888888`, reloads Wi-Fi, enables `wifi-autooff`, and starts a 3-hour timer
-  that disables AP interfaces.
-- First boot removes the stock no-root-password warning from `/etc/banner`
-  because SSH password login is intentionally disabled.
-- First boot adds firewall zone `tailscale` on `tailscale0` and forwarding
-  `tailscale -> wan`, allowing exit-node traffic to leave through WAN.
-- The bundled web homepage files and legacy flash-script placeholders are gone;
-  the current release package uses `刷机脚本/firstflash.bat` and
-  `刷机脚本/upgrade.bat`.
+- Treat behavior commits after `e21d545d` as the reviewed chain, excluding
+  documentation-only changes.
+- Patch UFI/OpenStick USB role support at build time in `diy-part2.sh`, because
+  the OpenWrt source tree is cloned during Actions instead of stored here.
+- Start `/usr/sbin/usb-role-autodetect` from `rc.local`: try USB device mode,
+  wait briefly for a computer, then switch to host mode for USB-RJ45 WAN if no
+  computer is detected.
+- Configure `eth0` as WAN on first boot after removing it from the actual
+  `br-lan` device section.
+- Use SSH public-key-only access and remove Dropbear interface restrictions so
+  recovery is possible from any reachable interface.
+- Configure a hidden default hotspot, then disable AP interfaces after a
+  3-hour timer.
+- Add `tailscale0` firewall zone forwarding to `wan` for exit-node traffic.
+- Enable common `ufi003` USB Ethernet drivers, including ASIX, Realtek RTL8152,
+  DM9601, SR9700, MCS7830, Pegasus, and SMSC95xx.
 
 ## Verification
 
 Run:
 
 - `git log --reverse --oneline e21d545d00a5ba49ed4f0113e0ec21a704005d18..HEAD`
-- `git diff --stat e21d545d00a5ba49ed4f0113e0ec21a704005d18..HEAD -- . ':!docs' ':!AGENTS.md' ':!README.md' ':!README_EN.md'`
 - `git diff --name-status e21d545d00a5ba49ed4f0113e0ec21a704005d18..HEAD -- . ':!docs' ':!AGENTS.md' ':!README.md' ':!README_EN.md'`
-- Read the final `HEAD` contents of each runtime/build file listed above.
+- `bash -n diy-part2.sh files/usr/sbin/usb-role-autodetect files/usr/sbin/wifi-hotspot-off files/etc/uci-defaults/97-wireless-hotspot-defaults files/etc/uci-defaults/98-ssh-key-only files/etc/uci-defaults/99-default-wan-eth0 files/etc/uci-defaults/99-tailscale-exit-node-firewall`
+- `git diff --check`
 
 Not run:
 
-- No full OpenWrt build was run locally.
+- No full OpenWrt firmware build was run locally.
 - No firmware was flashed.
-- No live USB role, WAN, SSH, Wi-Fi, or Tailscale exit-node runtime test was
-  performed.
+- No live USB role, WAN, SSH, Wi-Fi, or Tailscale runtime validation was run.
 
 Result:
 
-- The recorded behavior matches final `HEAD` at
-  `2459aa5eea6cfaf1df2db5a73b5ee13f3cd14a7f`.
-- Documentation-only changes were intentionally excluded from this record.
+- Static shell checks and whitespace checks passed.
+- The repository state is ready for a GitHub Actions build and hardware
+  validation.
 
 ## Risks
 
-- USB role switching still depends on the msm8916 ChipIdea/extcon runtime
-  behavior after a real build and flash.
-- Automatic USB-RJ45 fallback assumes the adapter appears as `eth0`.
-- SSH password login is disabled by default, so the bundled public key must be
-  valid for intended administrators.
-- Hidden Wi-Fi plus 3-hour AP auto-off can reduce recovery options if Ethernet,
-  USB device mode, or SSH key access fails.
-- Tailscale exit-node forwarding assumes `tailscale0` exists after Tailscale is
+- USB role switching still depends on the msm8916 ChipIdea/extcon driver
+  accepting the patched DTS at runtime.
+- USB-RJ45 fallback assumes the adapter appears as `eth0`; the added drivers
+  improve coverage but do not prove the live adapter name.
+- SSH password login is disabled, so the bundled public key must be usable by
+  the intended administrator.
+- Hidden Wi-Fi plus AP auto-off can reduce recovery options if USB, Ethernet,
+  or SSH key access fails.
+- Tailscale forwarding assumes `tailscale0` exists after Tailscale is
   configured.
 
 ## Next Step
 
-Build and flash a new image from `2459aa5`, then validate:
+Build and flash a new `ufi003` image, then check:
 
 ```sh
 ls -l /sys/class/usb_role/*/role
