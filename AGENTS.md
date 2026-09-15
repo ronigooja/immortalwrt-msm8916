@@ -33,6 +33,9 @@ documentation in English.
 ## Hard Rules
 
 - Do not overwrite user changes. Check `git status --short` before editing.
+- This is a private repository. For GitHub operations, use the GitHub API with
+  locally stored credentials such as the Git credential store. Do not try `gh`
+  or other GitHub helper CLIs.
 - Before modifying any non-Markdown file, tell the user why the change is
   needed and which file or area will be changed, then wait for explicit
   permission to continue.
