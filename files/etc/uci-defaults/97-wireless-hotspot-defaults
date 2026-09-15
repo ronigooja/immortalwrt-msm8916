@@ -2,13 +2,21 @@
 
 uci -q batch <<'EOF'
 set wireless.@wifi-iface[0].mode='ap'
-set wireless.@wifi-iface[0].ssid='Unknow'
+set wireless.@wifi-iface[0].ssid='Unknown'
 set wireless.@wifi-iface[0].encryption='psk2'
 set wireless.@wifi-iface[0].key='88888888'
 set wireless.@wifi-iface[0].hidden='1'
 set wireless.@wifi-iface[0].disabled='0'
 commit wireless
 EOF
+
+if [ -f /etc/banner ]; then
+	sed -i \
+		-e '/There is no root password defined on this device!/d' \
+		-e '/Use the "passwd" command to set up a new password/d' \
+		-e '/in order to prevent unauthorized SSH logins/d' \
+		/etc/banner
+fi
 
 wifi reload 2>/dev/null || true
 
