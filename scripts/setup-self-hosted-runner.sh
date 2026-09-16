@@ -121,8 +121,41 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 export DEBIAN_FRONTEND=noninteractive
-apt-get update
-apt-get install -y ca-certificates curl git gzip jq sudo tar
+
+wait_for_apt_locks() {
+  local waited=0
+  local timeout=1800
+  while pgrep -x apt >/dev/null 2>&1 \
+    || pgrep -x apt-get >/dev/null 2>&1 \
+    || pgrep -x dpkg >/dev/null 2>&1 \
+    || pgrep -x unattended-upgr >/dev/null 2>&1 \
+    || { command -v fuser >/dev/null 2>&1 && fuser /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock /var/cache/apt/archives/lock >/dev/null 2>&1; }; do
+    if [ "$waited" -ge "$timeout" ]; then
+      echo "Timed out waiting for apt/dpkg locks to clear." >&2
+      ps -eo pid,comm,args | grep -E "(apt|dpkg|unattended)" | grep -v grep || true
+      exit 1
+    fi
+    echo "Waiting for apt/dpkg lock holders to finish..."
+    sleep 10
+    waited=$((waited + 10))
+  done
+}
+
+disable_automatic_apt() {
+  systemctl disable --now apt-daily.timer apt-daily-upgrade.timer >/dev/null 2>&1 || true
+  systemctl disable --now unattended-upgrades.service >/dev/null 2>&1 || true
+  systemctl stop apt-daily.service apt-daily-upgrade.service >/dev/null 2>&1 || true
+  cat > /etc/apt/apt.conf.d/20auto-upgrades <<'EOF'
+APT::Periodic::Update-Package-Lists "0";
+APT::Periodic::Unattended-Upgrade "0";
+EOF
+}
+
+wait_for_apt_locks
+disable_automatic_apt
+dpkg --configure -a
+apt-get -o DPkg::Lock::Timeout=600 update
+apt-get -o DPkg::Lock::Timeout=600 install -y ca-certificates curl git gzip jq sudo tar
 
 if ! id "$RUNNER_USER" >/dev/null 2>&1; then
   useradd -m -s /bin/bash "$RUNNER_USER"

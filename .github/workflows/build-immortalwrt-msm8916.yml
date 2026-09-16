@@ -118,8 +118,24 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        sudo -E apt-get -y update
-        sudo -E apt-get -y install $(curl -fsSL https://raw.githubusercontent.com/xuxin1955/depend_ubuntu2204_openwrt/refs/heads/main/depend_ubuntu2204_openwrt)
+        waited=0
+        timeout=1800
+        while pgrep -x apt >/dev/null 2>&1 \
+          || pgrep -x apt-get >/dev/null 2>&1 \
+          || pgrep -x dpkg >/dev/null 2>&1 \
+          || pgrep -x unattended-upgr >/dev/null 2>&1 \
+          || { command -v fuser >/dev/null 2>&1 && sudo fuser /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock /var/cache/apt/archives/lock >/dev/null 2>&1; }; do
+          if [ "$waited" -ge "$timeout" ]; then
+            echo "Timed out waiting for apt/dpkg locks to clear." >&2
+            ps -eo pid,comm,args | grep -E "(apt|dpkg|unattended)" | grep -v grep || true
+            exit 1
+          fi
+          echo "Waiting for apt/dpkg lock holders to finish..."
+          sleep 10
+          waited=$((waited + 10))
+        done
+        sudo -E apt-get -o DPkg::Lock::Timeout=600 -y update
+        sudo -E apt-get -o DPkg::Lock::Timeout=600 -y install $(curl -fsSL https://raw.githubusercontent.com/xuxin1955/depend_ubuntu2204_openwrt/refs/heads/main/depend_ubuntu2204_openwrt)
 
     - name: mkbootimg build
       run: |
