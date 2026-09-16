@@ -128,7 +128,6 @@ wait_for_apt_locks() {
   while pgrep -x apt >/dev/null 2>&1 \
     || pgrep -x apt-get >/dev/null 2>&1 \
     || pgrep -x dpkg >/dev/null 2>&1 \
-    || pgrep -x unattended-upgr >/dev/null 2>&1 \
     || { command -v fuser >/dev/null 2>&1 && fuser /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock /var/cache/apt/archives/lock >/dev/null 2>&1; }; do
     if [ "$waited" -ge "$timeout" ]; then
       echo "Timed out waiting for apt/dpkg locks to clear." >&2
