@@ -12,7 +12,7 @@ Troubleshooting / Feature
 
 ## Phase
 
-Handoff
+Closed
 
 ## Goal
 
@@ -97,56 +97,40 @@ Run:
 - Patched `/etc/profile.d/00-passwordless-root.sh` on `root@192.168.2.79` to
   the same no-op used by the build-time fix.
 - `git diff --check`
+- User confirmed after handoff that the firmware build completed, the new
+  firmware was flashed successfully, and USB role switching, WAN, Wi-Fi, and
+  Tailscale all worked on hardware.
+- User confirmed the LED no longer remains on after boot, but the device still
+  shows a blue LED briefly for about 1 second during startup before it turns off.
 
 Not run:
 
-- No full OpenWrt firmware build was run locally.
-- No firmware was flashed.
-- No live USB role, WAN, Wi-Fi, or Tailscale runtime validation was run after
-  these LED and SSH-warning changes.
-- No rebuilt `boot.img` with the LED DTS default-off patch has been flashed yet.
+- No further LED boot-stage fix was attempted after confirming only a brief
+  startup blue flash remains.
 
 Result:
 
 - Static shell checks and whitespace checks passed.
-- Live rc.d LED fallback works after userspace starts, but does not prevent the
-  early red LED before init scripts run.
-- The repository state is ready for a GitHub Actions build and hardware
-  validation.
+- Firmware build, flash, USB role switching, WAN, Wi-Fi, and Tailscale runtime
+  validation are complete.
+- The original connectivity defaults chain is closed.
+- A brief blue LED flash during early startup remains as a known residual
+  behavior. This LED path has been adjusted multiple times; because the light
+  turns off after about 1 second, it is not blocking this task.
 
 ## Risks
 
-- USB role switching still depends on the msm8916 ChipIdea/extcon driver
-  accepting the patched DTS at runtime.
-- Board LED default-off now depends on the DTS patch being present in the newly
-  built and flashed `boot.img`; the live rc.d fallback alone cannot suppress the
-  early red light.
-- If red still lights before Linux registers LEDs after flashing the patched
-  `boot.img`, the remaining source is likely lk2nd/bootloader behavior.
-- USB-RJ45 fallback assumes the adapter appears as `eth0`; the added drivers
-  improve coverage but do not prove the live adapter name.
+- Early boot LED state is not fully controlled: the device still shows blue for
+  about 1 second during startup before the LED turns off. The remaining source
+  is likely earlier than the userspace fallback, such as bootloader or very
+  early kernel LED registration behavior.
 - SSH password login is disabled, so the bundled public key must be usable by
   the intended administrator.
 - Hidden Wi-Fi plus AP auto-off can reduce recovery options if USB, Ethernet,
   or SSH key access fails.
-- Tailscale forwarding assumes `tailscale0` exists after Tailscale is
-  configured.
 
 ## Next Step
 
-Build and flash a new `ufi003` image, then check:
-
-```sh
-ls -l /sys/class/usb_role/*/role
-logread -e usb-role-autodetect
-ip link show eth0
-uci show network.wan network.wan6
-uci show dropbear
-uci show firewall.tailscale firewall.tailscale_wan
-uci show wireless
-for led in red:power green:wlan blue:wan; do
-    cat "/sys/class/leds/$led/trigger"
-    cat "/sys/class/leds/$led/brightness"
-done
-cat /etc/profile.d/00-passwordless-root.sh
-```
+No immediate follow-up is required for the connectivity defaults chain. If the
+early blue LED flash becomes a priority again, investigate bootloader or very
+early kernel LED behavior separately from the connectivity work.
